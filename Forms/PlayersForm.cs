@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 using System.Windows.Forms;
+using EPL_DBMS.DataAccess;
 
 namespace EPL_DBMS.Forms
 {
@@ -15,6 +9,29 @@ namespace EPL_DBMS.Forms
         public PlayersForm()
         {
             InitializeComponent();
+            LoadPlayers();
+        }
+
+        private void LoadPlayers()
+        {
+            try
+            {
+                var data = PlayerRepository.GetAllPlayers();
+                var dgv  = dataGridViewPlayers;
+                dgv.DataSource = data;
+                dgv.Columns["PlayerId"].HeaderText = "ID";
+                dgv.Columns["PlayerName"].HeaderText = "Player Name";
+                dgv.Columns["Position"].HeaderText = "Position";
+                dgv.Columns["Age"].HeaderText = "Age";
+                dgv.Columns["Nationality"].HeaderText = "Nationality";
+                dgv.Columns["TeamId"].HeaderText = "Team ID";
+                dgv.AutoResizeColumns();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading Players: " + ex.Message,
+                    "DB Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

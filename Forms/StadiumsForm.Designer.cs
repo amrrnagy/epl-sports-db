@@ -1,39 +1,41 @@
-﻿namespace EPL_DBMS.Forms
+namespace EPL_DBMS.Forms
 {
     partial class StadiumsForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && (components != null)) components.Dispose();
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.dataGridViewStadiums = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStadiums)).BeginInit();
+            this.SuspendLayout();
+            // dataGridViewStadiums
+            this.dataGridViewStadiums.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewStadiums.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewStadiums.Name = "dataGridViewStadiums";
+            this.dataGridViewStadiums.ReadOnly = true;
+            this.dataGridViewStadiums.RowHeadersWidth = 51;
+            this.dataGridViewStadiums.RowTemplate.Height = 24;
+            this.dataGridViewStadiums.TabIndex = 0;
+            // StadiumsForm
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "StadiumsForm";
+            this.ClientSize = new System.Drawing.Size(960, 520);
+            this.Controls.Add(this.dataGridViewStadiums);
+            this.Name = "StadiumsForm";
+            this.Text = "Stadiums";
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStadiums)).EndInit();
+            this.ResumeLayout(false);
         }
-
         #endregion
+
+        private System.Windows.Forms.DataGridView dataGridViewStadiums;
     }
 }
