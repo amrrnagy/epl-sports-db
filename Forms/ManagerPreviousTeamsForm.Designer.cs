@@ -1,6 +1,6 @@
 namespace EPL_DBMS.Forms
 {
-    partial class ManagerHistoryForm
+    partial class ManagerPreviousTeamsForm
     {
         private System.ComponentModel.IContainer components = null;
 

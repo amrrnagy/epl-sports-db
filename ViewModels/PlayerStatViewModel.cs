@@ -7,8 +7,9 @@ using EPL_DBMS.Models;
 
 namespace EPL_DBMS.ViewModels
 {
-    public class ManagerViewModel : Manager 
+    public class PlayerStatViewModel : PlayerStat
     {
-        public string TeamName { get; set; }
+        public string PlayerName { get; set; }
+        public string MatchDisplay { get; set; }
     }
 }
