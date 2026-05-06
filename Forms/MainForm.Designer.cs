@@ -24,7 +24,7 @@ namespace EPL_DBMS.Forms
             this.btnPlayerInjuries = new System.Windows.Forms.Button();
             this.btnTeamStats = new System.Windows.Forms.Button();
             this.btnPlayerStats = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
+               this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -105,7 +105,7 @@ namespace EPL_DBMS.Forms
             // 
             this.btnPlayerInjuries.Location = new System.Drawing.Point(52, 474);
             this.btnPlayerInjuries.Name = "btnPlayerInjuries";
-            this.btnPlayerInjuries.Size = new System.Drawing.Size(158, 46);
+             this.btnPlayerInjuries.Size = new System.Drawing.Size(158, 46);
             this.btnPlayerInjuries.TabIndex = 9;
             this.btnPlayerInjuries.Text = "Player Injuries";
             this.btnPlayerInjuries.UseVisualStyleBackColor = true;
@@ -113,9 +113,10 @@ namespace EPL_DBMS.Forms
             // 
             // btnTeamStats
             // 
-            this.btnTeamStats.Location = new System.Drawing.Point(437, 474);
+           
+ this.btnTeamStats.Location = new System.Drawing.Point(437, 474);
             this.btnTeamStats.Name = "btnTeamStats";
-            this.btnTeamStats.Size = new System.Drawing.Size(158, 46);
+             this.btnTeamStats.Size = new System.Drawing.Size(158, 46);
             this.btnTeamStats.TabIndex = 7;
             this.btnTeamStats.Text = "Team Stats";
             this.btnTeamStats.UseVisualStyleBackColor = true;
@@ -123,14 +124,15 @@ namespace EPL_DBMS.Forms
             // 
             // btnPlayerStats
             // 
-            this.btnPlayerStats.Location = new System.Drawing.Point(243, 474);
+          this.btnPlayerStats.Location = new System.Drawing.Point(243, 474);  
             this.btnPlayerStats.Name = "btnPlayerStats";
-            this.btnPlayerStats.Size = new System.Drawing.Size(158, 46);
+           this.btnPlayerStats.Size = new System.Drawing.Size(158, 46);
             this.btnPlayerStats.TabIndex = 8;
             this.btnPlayerStats.Text = "Player Stats";
             this.btnPlayerStats.UseVisualStyleBackColor = true;
             this.btnPlayerStats.Click += new System.EventHandler(this.btnPlayerStats_Click);
-            // 
+
+               // 
             // label2
             // 
             this.label2.BackColor = System.Drawing.SystemColors.AppWorkspace;
@@ -260,6 +262,7 @@ namespace EPL_DBMS.Forms
             this.label6.Size = new System.Drawing.Size(68, 17);
             this.label6.TabIndex = 1;
             this.label6.Text = "MATCHES";
+
             // 
             // MainForm
             // 
@@ -278,9 +281,6 @@ namespace EPL_DBMS.Forms
             this.Controls.Add(this.btnReferees);
             this.Controls.Add(this.btnManagers);
             this.Controls.Add(this.btnMatches);
-            this.Controls.Add(this.btnTeamStats);
-            this.Controls.Add(this.btnPlayerStats);
-            this.Controls.Add(this.btnPlayerInjuries);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "EPL Database Management System";
@@ -304,6 +304,7 @@ namespace EPL_DBMS.Forms
         private System.Windows.Forms.Button btnPlayerInjuries;
         private System.Windows.Forms.Button btnTeamStats;
         private System.Windows.Forms.Button btnPlayerStats;
+
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;

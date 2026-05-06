@@ -6,11 +6,11 @@ using EPL_DBMS.ViewModels;
 
 namespace EPL_DBMS.DataAccess
 {
-    public static class ManagerHistoryRepository
+    public static class ManagerPreviousTeamRepository
     {
-        public static List<ManagerHistory> GetByManagerId(int managerId)
+        public static List<ManagerPreviousTeam> GetByManagerId(int managerId)
         {
-            var list = new List<ManagerHistory>();
+            var list = new List<ManagerPreviousTeam>();
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
@@ -24,34 +24,36 @@ namespace EPL_DBMS.DataAccess
             return list;
         }
 
-        public static List<ManagerViewModel> GetHistoryWithNamesByManager(int managerId)
+        public static List<ManagerPreviousTeamViewModel> GetHistoryWithNamesByManager(int managerId)
         {
-            var list = new List<ManagerViewModel>();
+            var list = new List<ManagerPreviousTeamViewModel>();
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-
+                // Join BOTH the Managers table and the Teams table
                 string query = @"
-                    SELECT 
-                        mpt.Manager_ID, 
-                        m.Manager_Name, 
-                        mpt.Previous_Team_ID, 
-                        t.Team_Name
-                    FROM Manager_Previous_Teams mpt
-                    INNER JOIN Managers m ON mpt.Manager_ID = m.Manager_ID
-                    INNER JOIN Teams t ON mpt.Previous_Team_ID = t.Team_ID
-                    WHERE mpt.Manager_ID = @mid";
+            SELECT h.*, m.Manager_Name, t.Team_Name 
+            FROM Manager_Previous_Teams h
+            INNER JOIN Managers m ON h.Manager_ID = m.Manager_ID
+            INNER JOIN Teams t ON h.Previous_Team_ID = t.Team_ID
+            WHERE h.Manager_ID = @ManagerId";
 
                 var cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@mid", managerId);
+                cmd.Parameters.AddWithValue("@ManagerId", managerId);
 
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        list.Add(new ManagerViewModel
+                        list.Add(new ManagerPreviousTeamViewModel
                         {
-                            TeamName = reader["Team_Name"].ToString()
+                            // Base Model Properties
+                            ManagerId = (int)reader["Manager_ID"],
+                            PreviousTeamId = (int)reader["Previous_Team_ID"],
+
+                            // ViewModel Properties (The readable names)
+                            ManagerName = reader["Manager_Name"].ToString(),
+                            PreviousTeamName = reader["Team_Name"].ToString()
                         });
                     }
                 }
@@ -59,7 +61,7 @@ namespace EPL_DBMS.DataAccess
             return list;
         }
 
-        public static void Add(ManagerHistory m)
+        public static void Add(ManagerPreviousTeam m)
         {
             using (var con = DatabaseHelper.GetConnection())
             {
@@ -87,7 +89,7 @@ namespace EPL_DBMS.DataAccess
             }
         }
 
-        private static ManagerHistory Map(SqlDataReader r) => new ManagerHistory
+        private static ManagerPreviousTeam Map(SqlDataReader r) => new ManagerPreviousTeam
         {
             ManagerId = (int)r["Manager_ID"],
             PreviousTeamId = (int)r["Previous_Team_ID"]

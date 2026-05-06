@@ -49,7 +49,7 @@ namespace EPL_DBMS.Forms
                 string managerName = dataGridViewManagers.Rows[e.RowIndex].Cells["ManagerName"].Value.ToString();
 
                 // --- THE FIX: Ask the database for the history BEFORE opening the new form ---
-                var history = ManagerHistoryRepository.GetHistoryWithNamesByManager(managerId);
+                var history = ManagerPreviousTeamRepository.GetHistoryWithNamesByManager(managerId);
 
                 // If there is no history, show the message safely on this screen and stop here
                 if (history.Count == 0)
@@ -60,7 +60,7 @@ namespace EPL_DBMS.Forms
                 }
 
                 // If the code makes it here, they DO have history. Open the popup!
-                var historyForm = new ManagerHistoryForm(managerId, managerName);
+                var historyForm = new ManagerPreviousTeamsForm(managerId, managerName);
                 historyForm.ShowDialog();
             }
         }

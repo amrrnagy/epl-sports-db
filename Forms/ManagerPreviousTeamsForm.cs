@@ -4,16 +4,11 @@ using EPL_DBMS.DataAccess;
 
 namespace EPL_DBMS.Forms
 {
-    public partial class ManagerHistoryForm : Form
+    public partial class ManagerPreviousTeamsForm : Form
     {
         private readonly int _managerId;
 
-        public ManagerHistoryForm()
-        {
-            InitializeComponent();
-        }
-
-        public ManagerHistoryForm(int managerId, string managerName)
+        public ManagerPreviousTeamsForm(int managerId, string managerName)
         {
             InitializeComponent();
 
@@ -34,7 +29,7 @@ namespace EPL_DBMS.Forms
         {
             try
             {
-                var history = ManagerHistoryRepository.GetHistoryWithNamesByManager(_managerId);
+                var history = ManagerPreviousTeamRepository.GetHistoryWithNamesByManager(_managerId);
 
                 if (history.Count == 0)
                 {
