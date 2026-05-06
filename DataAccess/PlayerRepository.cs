@@ -79,6 +79,16 @@ namespace EPL_DBMS.DataAccess
             }
         }
 
+        public static int PlayerCount()
+        {
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+                var cmd = new SqlCommand("Select Count(*) from Players", con);
+                return (int)cmd.ExecuteScalar();
+            }
+        }
+
         private static Player Map(SqlDataReader r) => new Player
         {
             PlayerId    = (int)r["Player_ID"],

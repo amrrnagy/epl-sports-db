@@ -77,6 +77,16 @@ namespace EPL_DBMS.DataAccess
             }
         }
 
+        public static int TeamCount()
+        {
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+                var cmd = new SqlCommand("Select Count(*) from Teams", con);
+                return (int)cmd.ExecuteScalar();
+            }
+            }
+
         private static Team Map(SqlDataReader r) => new Team
         {
             TeamId       = (int)r["Team_ID"],

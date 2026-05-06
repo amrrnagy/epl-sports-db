@@ -88,6 +88,16 @@ namespace EPL_DBMS.DataAccess
             }
         }
 
+
+        public static int MatchCount()
+        {
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+                var cmd = new SqlCommand("Select Count(*) from Matches", con);
+                return (int)cmd.ExecuteScalar();
+            }
+        }
         private static Match Map(SqlDataReader r) => new Match
         {
             MatchId    = (int)r["Match_ID"],
