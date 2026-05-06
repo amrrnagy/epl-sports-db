@@ -25,16 +25,25 @@ namespace EPL_DBMS.Forms
         private void btnStadiums_Click(object sender, EventArgs e) => new StadiumsForm().Show();
         private void btnReferees_Click(object sender, EventArgs e) => new RefereesForm().Show();
         private void btnManagers_Click(object sender, EventArgs e) => new ManagersForm().Show();
-        private void btnMatches_Click(object sender, EventArgs e) => new MatchesForm().Show();
-
+     
 
         private void btnPlayers_Click(object sender, EventArgs e)
         {
             PlayersForm form = new PlayersForm();
+        
             form.FormClosed += (s, args) => this.Show(); // show main again
             form.Show();
             this.Hide(); // hide main
         }
+        private void btnMatches_Click(object sender, EventArgs e)
+        {
+            MatchesForm form = new MatchesForm();
+          
+            form.FormClosed += (s, args) => this.Show(); // show main again
+            form.Show();
+            this.Hide(); // hide main
+        }
+
 
 
         private void btnPlayerInjuries_Click(object sender, EventArgs e)

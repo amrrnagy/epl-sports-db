@@ -13,6 +13,7 @@ namespace EPL_DBMS.Forms
         private System.Windows.Forms.Button add;
         private System.Windows.Forms.Button update;
         private System.Windows.Forms.Button delete;
+        private System.Windows.Forms.Button search;
 
         private System.Windows.Forms.TextBox txtid;
         private System.Windows.Forms.Button btnBack;
@@ -39,6 +40,7 @@ namespace EPL_DBMS.Forms
             this.update = new System.Windows.Forms.Button();
             this.delete = new System.Windows.Forms.Button();
             this.dataGridViewPlayers = new System.Windows.Forms.DataGridView();
+            this.search = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewPlayers)).BeginInit();
             this.SuspendLayout();
             // 
@@ -63,7 +65,7 @@ namespace EPL_DBMS.Forms
             this.txtid.TabIndex = 0;
             this.txtid.Text = "ENTER PLAYER ID";
             this.txtid.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtid.TextChanged += new System.EventHandler(this.txtid_TextChanged);
+  
             // 
             // txtname
             // 
@@ -152,9 +154,20 @@ namespace EPL_DBMS.Forms
             this.dataGridViewPlayers.TabIndex = 8;
             this.dataGridViewPlayers.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewPlayers_CellClick);
             // 
+            // search
+            // 
+            this.search.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.search.Location = new System.Drawing.Point(471, 14);
+            this.search.Name = "search";
+            this.search.Size = new System.Drawing.Size(68, 29);
+            this.search.TabIndex = 9;
+            this.search.Text = "Search";
+            this.search.Click += new System.EventHandler(this.btnSearch_Click);
+            // 
             // PlayersForm
             // 
             this.ClientSize = new System.Drawing.Size(737, 546);
+            this.Controls.Add(this.search);
             this.Controls.Add(this.btnBack);
             this.Controls.Add(this.txtid);
             this.Controls.Add(this.txtname);
@@ -174,8 +187,9 @@ namespace EPL_DBMS.Forms
             this.PerformLayout();
 
         }
+
         #endregion
 
-        
+      
     }
 }

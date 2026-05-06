@@ -152,6 +152,9 @@
     <EmbeddedResource Include="Forms\ManagerPreviousTeamsForm.resx">
       <DependentUpon>ManagerPreviousTeamsForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MatchesForm.resx">
+      <DependentUpon>MatchesForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\PlayersForm.resx">
       <DependentUpon>PlayersForm.cs</DependentUpon>
     </EmbeddedResource>
