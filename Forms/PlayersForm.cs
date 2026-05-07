@@ -1,6 +1,7 @@
 using EPL_DBMS.DataAccess;
 using EPL_DBMS.Models;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 
@@ -11,10 +12,12 @@ namespace EPL_DBMS.Forms
         public PlayersForm()
         {
             InitializeComponent();
-
-            txtid.TextChanged += txtid_TextChanged;
-
             LoadPlayers();
+
+         
+            txtid.BackColor = Color.LightGray;
+ 
+            txtid.ForeColor = Color.Gray;
 
             // PlaceHolders for the Text Fields
 
@@ -41,11 +44,47 @@ namespace EPL_DBMS.Forms
             }
         }
 
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            if (!int.TryParse(txtid.Text, out int id))
+            {
+                MessageBox.Show("Enter valid ID");
+                return;
+            }
+
+            var player = PlayerRepository.GetById(id);
+
+            if (player == null)
+            {
+                MessageBox.Show("Player not found");
+                return;
+            }
+
+            txtname.Text = player.PlayerName;
+            txtposition.Text = player.Position;
+            txtage.Text = player.Age.ToString();
+            txtnationality.Text = player.Nationality;
+            txtteamid.Text = player.TeamId.ToString();
+            SetAllTextBlack();
+
+            // Enable editing
+            update.Enabled = true;
+            delete.Enabled = true;
+        }
+
         //  ADD 
         private void btnAdd_Click(object sender, EventArgs e)
         {
             try
             {
+             
+                if (txtname.Text == "" || txtposition.Text == "" ||
+                    txtage.Text == "" || txtnationality.Text == "" || txtteamid.Text == "")
+                {
+                    MessageBox.Show("Please fill all fields");
+                    return;
+                }
+
                 var p = new Player
                 {
                     PlayerName = txtname.Text,
@@ -56,8 +95,12 @@ namespace EPL_DBMS.Forms
                 };
 
                 PlayerRepository.Add(p);
-                LoadPlayers();
-                ClearFields();
+
+                MessageBox.Show("Player Added Successfully!");
+
+                LoadPlayers();    
+                ClearFields();    
+
             }
             catch (Exception ex)
             {
@@ -70,13 +113,15 @@ namespace EPL_DBMS.Forms
         {
             try
             {
-                if (dataGridViewPlayers.CurrentRow == null) return;
-
-                int id = int.Parse(txtid.Text);
+                if (txtid.Text == "" || txtid.Text == "Auto Generated")
+                {
+                    MessageBox.Show("Select a player first");
+                    return;
+                }
 
                 var p = new Player
                 {
-                    PlayerId = id,
+           
                     PlayerName = txtname.Text,
                     Position = txtposition.Text,
                     Age = int.Parse(txtage.Text),
@@ -85,8 +130,12 @@ namespace EPL_DBMS.Forms
                 };
 
                 PlayerRepository.Update(p);
+
+                MessageBox.Show("Player Updated!");
+
                 LoadPlayers();
                 ClearFields();
+
             }
             catch (Exception ex)
             {
@@ -121,59 +170,38 @@ namespace EPL_DBMS.Forms
             var row = dataGridViewPlayers.CurrentRow;
 
             txtid.Text = row.Cells["PlayerId"].Value.ToString();
-            txtid.ForeColor = System.Drawing.Color.Black;
-
             txtname.Text = row.Cells["PlayerName"].Value.ToString();
-            txtname.ForeColor = System.Drawing.Color.Black;
-
             txtposition.Text = row.Cells["Position"].Value.ToString();
-            txtposition.ForeColor = System.Drawing.Color.Black;
-
             txtage.Text = row.Cells["Age"].Value.ToString();
-            txtage.ForeColor = System.Drawing.Color.Black;
+           txtnationality.Text = row.Cells["Nationality"].Value.ToString();
+           txtteamid.Text = row.Cells["TeamId"].Value.ToString();
+            SetAllTextBlack();
 
-            txtnationality.Text = row.Cells["Nationality"].Value.ToString();
-            txtnationality.ForeColor = System.Drawing.Color.Black;
-
-            txtteamid.Text = row.Cells["TeamId"].Value.ToString();
-            txtteamid.ForeColor = System.Drawing.Color.Black;
         }
 
+        // function to set color text to black
+        private void SetAllTextBlack()
+        {
+            TextBox[] boxes = { txtname, txtposition, txtage, txtnationality, txtteamid, txtid };
+
+            foreach (var txt in boxes)
+            {
+                txt.ForeColor = Color.Black;
+            }
+        }
         // clear
         private void ClearFields()
         {
-            txtname.Clear();
-            txtposition.Clear();
-            txtage.Clear();
-            txtnationality.Clear();
-            txtteamid.Clear();
-            txtid.Clear();
+            SetPlaceholder(txtname, "Name");
+            SetPlaceholder(txtposition, "Position");
+            SetPlaceholder(txtage, "Age");
+            SetPlaceholder(txtnationality, "Nationality");
+            SetPlaceholder(txtteamid, "Team ID");
+
+            SetPlaceholder(txtid, "ENTER PLAYER ID");
         }
 
-        // when enter a player id its info appears in txt fields
-        private void txtid_TextChanged(object sender, EventArgs e)
-        {
-            if (int.TryParse(txtid.Text, out int id)) 
-            {
-                var player = PlayerRepository.GetById(id); //get player info from db
 
-                if (player != null)
-                {
-                    txtname.Text = player.PlayerName;
-                    txtposition.Text = player.Position;
-                    txtage.Text = player.Age.ToString();
-                    txtnationality.Text = player.Nationality;
-                    txtteamid.Text = player.TeamId.ToString();
-
-                    // make txt black
-                    txtname.ForeColor = System.Drawing.Color.Black;
-                    txtposition.ForeColor = System.Drawing.Color.Black;
-                    txtage.ForeColor = System.Drawing.Color.Black;
-                    txtnationality.ForeColor = System.Drawing.Color.Black;
-                    txtteamid.ForeColor = System.Drawing.Color.Black;
-                }
-            }
-        }
 
         private void SetPlaceholder(TextBox txt, string placeholder)
         {
@@ -209,6 +237,9 @@ namespace EPL_DBMS.Forms
             LoadPlayers();
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
 
+        }
     }
 }
