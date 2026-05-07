@@ -64,6 +64,21 @@ namespace EPL_DBMS.Forms
 
             var team = TeamRepository.GetById(id);
 
+                if (team != null)
+                {
+                    txtname.Text = team.TeamName;
+                    txtfounded.Text = team.YearFounded.ToString();
+                    txtkitcolor.Text = team.HomeKitColor;
+                    txtstadiumid.Text = team.StadiumId.ToString();
+
+                    // make txt black
+                    txtname.ForeColor = System.Drawing.Color.Black;
+                    txtfounded.ForeColor = System.Drawing.Color.Black;
+                    txtkitcolor.ForeColor = System.Drawing.Color.Black;
+                    txtstadiumid.ForeColor = System.Drawing.Color.Black;
+
+                }
+
             if (team != null)
             {
                 txtname.Text      = team.TeamName;
@@ -236,6 +251,11 @@ namespace EPL_DBMS.Forms
 
         private void NavigateTo(Form childForm)
         {
+            txtname.Clear();
+            txtkitcolor.Clear();
+            txtfounded.Clear();
+            txtstadiumid.Clear();
+            txtid.Clear();
             this.Hide();
 
             using (childForm)

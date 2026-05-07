@@ -74,7 +74,7 @@
             // 
             // txtid
             // 
-            this.txtid.BackColor = System.Drawing.SystemColors.Info;
+            this.txtid.BackColor = System.Drawing.SystemColors.ControlLight;
             this.txtid.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.txtid.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtid.Location = new System.Drawing.Point(290, 15);
@@ -169,6 +169,7 @@
             this.Name = "TeamsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "TeamsForm";
+            this.Load += new System.EventHandler(this.TeamsForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewTeams)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -188,4 +189,5 @@
         private System.Windows.Forms.DataGridView dataGridViewTeams;
         private System.Windows.Forms.Button btnTeamStats;
     }
+
 }
