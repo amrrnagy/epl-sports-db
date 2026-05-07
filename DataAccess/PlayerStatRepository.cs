@@ -2,11 +2,14 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
+using EPL_DBMS.ViewModels;
 
 namespace EPL_DBMS.DataAccess
 {
     public static class PlayerStatRepository
     {
+        // ── Existing methods (unchanged) ────────────────────────────────────────
+
         public static List<PlayerStat> GetAllPlayerStats()
         {
             var list = new List<PlayerStat>();
@@ -85,6 +88,49 @@ namespace EPL_DBMS.DataAccess
             }
         }
 
+        // ── NEW: ViewModel methods for the DataGridView ──────────────────────────
+        // INNER JOIN resolves Player_ID -> Player_Name.
+        // No LINQ. No in-memory filtering.
+
+        private static readonly string ViewQuery = @"
+            SELECT ps.*, p.Player_Name
+            FROM   Player_Stats ps
+            INNER  JOIN Players p ON ps.Player_ID = p.Player_ID";
+
+        // Used by the default (league-wide) constructor — returns ALL stats.
+        public static List<PlayerStatViewModel> GetAllPlayerStatsForGrid()
+        {
+            var list = new List<PlayerStatViewModel>();
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+                var cmd = new SqlCommand(ViewQuery, con);
+                using (var reader = cmd.ExecuteReader())
+                    while (reader.Read())
+                        list.Add(MapView(reader));
+            }
+            return list;
+        }
+
+        // Used by the contextual (per-player) constructor — SQL WHERE filters by ID.
+        public static List<PlayerStatViewModel> GetStatsByPlayerId(int playerId)
+        {
+            var list = new List<PlayerStatViewModel>();
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+                string query = ViewQuery + " WHERE ps.Player_ID = @pid";
+                var cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@pid", playerId);  // SqlParameter — no LINQ
+                using (var reader = cmd.ExecuteReader())
+                    while (reader.Read())
+                        list.Add(MapView(reader));
+            }
+            return list;
+        }
+
+        // ── Private mappers ──────────────────────────────────────────────────────
+
         private static PlayerStat Map(SqlDataReader r) => new PlayerStat
         {
             PlayerStatId  = (int)r["Player_Stat_ID"],
@@ -95,6 +141,22 @@ namespace EPL_DBMS.DataAccess
             YellowCards   = (int)r["Yellow_Cards"],
             RedCards      = (int)r["Red_Cards"],
             MinutesPlayed = (int)r["Minutes_Played"]
+        };
+
+        private static PlayerStatViewModel MapView(SqlDataReader r) => new PlayerStatViewModel
+        {
+            // Base Model properties
+            PlayerStatId  = (int)r["Player_Stat_ID"],
+            MatchId       = (int)r["Match_ID"],
+            PlayerId      = (int)r["Player_ID"],
+            GoalsScored   = (int)r["Goals_Scored"],
+            Assists       = (int)r["Assists"],
+            YellowCards   = (int)r["Yellow_Cards"],
+            RedCards      = (int)r["Red_Cards"],
+            MinutesPlayed = (int)r["Minutes_Played"],
+
+            // ViewModel property
+            PlayerName    = r["Player_Name"].ToString()
         };
     }
 }

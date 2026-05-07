@@ -1,4 +1,3 @@
-
 using EPL_DBMS.DataAccess;
 using System;
 using System.Windows.Forms;
@@ -15,86 +14,54 @@ namespace EPL_DBMS.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            lblTeamsCount.Text = TeamRepository.TeamCount().ToString();
-            lblPlayersCount.Text = PlayerRepository.PlayerCount().ToString();
-            lblMatchesCount.Text = MatchRepository.MatchCount().ToString();
-
+            try
+            {
+                lblTeamsCount.Text = TeamRepository.TeamCount().ToString();
+                lblPlayersCount.Text = PlayerRepository.PlayerCount().ToString();
+                lblMatchesCount.Text = MatchRepository.MatchCount().ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Database connection error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
-        private void btnTeams_Click(object sender, EventArgs e) => new TeamsForm().Show();
-        private void btnStadiums_Click(object sender, EventArgs e) => new StadiumsForm().Show();
-        private void btnReferees_Click(object sender, EventArgs e) => new RefereesForm().Show();
-        private void btnManagers_Click(object sender, EventArgs e) => new ManagersForm().Show();
-     
-
-        private void btnPlayers_Click(object sender, EventArgs e)
+        // ==========================================
+        // Safe Navigation Method (Prevents Memory Leaks)
+        // ==========================================
+        private void NavigateTo(Form childForm)
         {
-            PlayersForm form = new PlayersForm();
-        
-            form.FormClosed += (s, args) => this.Show(); // show main again
-            form.Show();
-            this.Hide(); // hide main
-        }
-        private void btnMatches_Click(object sender, EventArgs e)
-        {
-            MatchesForm form = new MatchesForm();
-          
-            form.FormClosed += (s, args) => this.Show(); // show main again
-            form.Show();
-            this.Hide(); // hide main
+            this.Hide();
+
+            using (childForm)
+            {
+                childForm.ShowDialog();
+            }
+
+            MainForm_Load(null, null); // Refresh the counts!
+            this.Show();
         }
 
+        // ==========================================
+        // Top Row: The Panels (Cards)
+        // ==========================================
+        private void panelPlayers_Click(object sender, EventArgs e) => NavigateTo(new PlayersForm());
+        private void panelTeams_Click(object sender, EventArgs e) => NavigateTo(new TeamsForm());
+        private void panelMatches_Click(object sender, EventArgs e) => NavigateTo(new MatchesForm());
 
+        // ==========================================
+        // Middle Row: Management Forms
+        // ==========================================
+        private void btnManagers_Click(object sender, EventArgs e) => NavigateTo(new ManagersForm());
+        private void btnStadiums_Click(object sender, EventArgs e) => NavigateTo(new StadiumsForm());
+        private void btnReferees_Click(object sender, EventArgs e) => NavigateTo(new RefereesForm());
 
-        private void btnPlayerInjuries_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnTeamStats_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnPlayerStats_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnManagerHistory_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblTeamsCount_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblMatchesCount_Click(object sender, EventArgs e)
-        {
-
-        }
+        // ==========================================
+        // Bottom Row: Global Statistics/Reports
+        // ==========================================
+        // Uses the empty constructors to load ALL data for the league
+        private void btnTopPerformers_Click(object sender, EventArgs e) => NavigateTo(new PlayerStatsForm());
+        private void btnInjuryReport_Click(object sender, EventArgs e) => NavigateTo(new PlayerInjuriesForm());
+        private void btnStandings_Click(object sender, EventArgs e) => NavigateTo(new TeamStatsForm());
     }
 }
-
-
-
-
-
-    

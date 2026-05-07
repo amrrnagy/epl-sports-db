@@ -41,6 +41,8 @@ namespace EPL_DBMS.Forms
             this.delete = new System.Windows.Forms.Button();
             this.dataGridViewPlayers = new System.Windows.Forms.DataGridView();
             this.search = new System.Windows.Forms.Button();
+            this.btnPlayerInjuries = new System.Windows.Forms.Button();
+            this.btnPlayerStats = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewPlayers)).BeginInit();
             this.SuspendLayout();
             // 
@@ -58,61 +60,60 @@ namespace EPL_DBMS.Forms
             this.txtid.BackColor = System.Drawing.SystemColors.Info;
             this.txtid.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.txtid.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtid.Location = new System.Drawing.Point(280, 15);
+            this.txtid.Location = new System.Drawing.Point(263, 17);
             this.txtid.Multiline = true;
             this.txtid.Name = "txtid";
             this.txtid.Size = new System.Drawing.Size(180, 28);
             this.txtid.TabIndex = 0;
             this.txtid.Text = "ENTER PLAYER ID";
             this.txtid.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-  
             // 
             // txtname
             // 
             this.txtname.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.txtname.Location = new System.Drawing.Point(39, 61);
+            this.txtname.Location = new System.Drawing.Point(58, 78);
             this.txtname.Name = "txtname";
-            this.txtname.Size = new System.Drawing.Size(139, 24);
+            this.txtname.Size = new System.Drawing.Size(139, 22);
             this.txtname.TabIndex = 0;
             // 
             // txtposition
             // 
             this.txtposition.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.txtposition.Location = new System.Drawing.Point(211, 61);
+            this.txtposition.Location = new System.Drawing.Point(230, 78);
             this.txtposition.Name = "txtposition";
-            this.txtposition.Size = new System.Drawing.Size(120, 24);
+            this.txtposition.Size = new System.Drawing.Size(120, 22);
             this.txtposition.TabIndex = 1;
             // 
             // txtage
             // 
             this.txtage.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.txtage.Location = new System.Drawing.Point(360, 61);
+            this.txtage.Location = new System.Drawing.Point(379, 78);
             this.txtage.Name = "txtage";
-            this.txtage.Size = new System.Drawing.Size(80, 24);
+            this.txtage.Size = new System.Drawing.Size(80, 22);
             this.txtage.TabIndex = 2;
             // 
             // txtnationality
             // 
             this.txtnationality.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.txtnationality.Location = new System.Drawing.Point(471, 61);
+            this.txtnationality.Location = new System.Drawing.Point(490, 78);
             this.txtnationality.Name = "txtnationality";
-            this.txtnationality.Size = new System.Drawing.Size(120, 24);
+            this.txtnationality.Size = new System.Drawing.Size(120, 22);
             this.txtnationality.TabIndex = 3;
             // 
             // txtteamid
             // 
             this.txtteamid.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.txtteamid.Location = new System.Drawing.Point(627, 61);
+            this.txtteamid.Location = new System.Drawing.Point(646, 78);
             this.txtteamid.Name = "txtteamid";
-            this.txtteamid.Size = new System.Drawing.Size(80, 24);
+            this.txtteamid.Size = new System.Drawing.Size(80, 22);
             this.txtteamid.TabIndex = 4;
             // 
             // add
             // 
             this.add.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.add.Location = new System.Drawing.Point(184, 97);
+            this.add.Location = new System.Drawing.Point(203, 114);
             this.add.Name = "add";
-            this.add.Size = new System.Drawing.Size(93, 63);
+            this.add.Size = new System.Drawing.Size(93, 37);
             this.add.TabIndex = 5;
             this.add.Text = "Add";
             this.add.Click += new System.EventHandler(this.btnAdd_Click);
@@ -120,9 +121,9 @@ namespace EPL_DBMS.Forms
             // update
             // 
             this.update.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.update.Location = new System.Drawing.Point(321, 97);
+            this.update.Location = new System.Drawing.Point(340, 114);
             this.update.Name = "update";
-            this.update.Size = new System.Drawing.Size(93, 63);
+            this.update.Size = new System.Drawing.Size(93, 37);
             this.update.TabIndex = 6;
             this.update.Text = "Update";
             this.update.Click += new System.EventHandler(this.btnUpdate_Click);
@@ -130,9 +131,9 @@ namespace EPL_DBMS.Forms
             // delete
             // 
             this.delete.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.delete.Location = new System.Drawing.Point(462, 97);
+            this.delete.Location = new System.Drawing.Point(481, 114);
             this.delete.Name = "delete";
-            this.delete.Size = new System.Drawing.Size(93, 63);
+            this.delete.Size = new System.Drawing.Size(93, 37);
             this.delete.TabIndex = 7;
             this.delete.Text = "Delete";
             this.delete.Click += new System.EventHandler(this.btnDelete_Click);
@@ -145,28 +146,50 @@ namespace EPL_DBMS.Forms
             this.dataGridViewPlayers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewPlayers.BackgroundColor = System.Drawing.SystemColors.ActiveBorder;
             this.dataGridViewPlayers.ColumnHeadersHeight = 29;
-            this.dataGridViewPlayers.Location = new System.Drawing.Point(20, 166);
+            this.dataGridViewPlayers.Location = new System.Drawing.Point(20, 179);
             this.dataGridViewPlayers.Name = "dataGridViewPlayers";
             this.dataGridViewPlayers.ReadOnly = true;
             this.dataGridViewPlayers.RowHeadersWidth = 51;
             this.dataGridViewPlayers.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewPlayers.Size = new System.Drawing.Size(687, 359);
+            this.dataGridViewPlayers.Size = new System.Drawing.Size(579, 310);
             this.dataGridViewPlayers.TabIndex = 8;
             this.dataGridViewPlayers.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewPlayers_CellClick);
             // 
             // search
             // 
             this.search.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.search.Location = new System.Drawing.Point(471, 14);
+            this.search.Location = new System.Drawing.Point(473, 16);
             this.search.Name = "search";
             this.search.Size = new System.Drawing.Size(68, 29);
             this.search.TabIndex = 9;
             this.search.Text = "Search";
             this.search.Click += new System.EventHandler(this.btnSearch_Click);
             // 
+            // btnPlayerInjuries
+            // 
+            this.btnPlayerInjuries.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnPlayerInjuries.Location = new System.Drawing.Point(646, 338);
+            this.btnPlayerInjuries.Name = "btnPlayerInjuries";
+            this.btnPlayerInjuries.Size = new System.Drawing.Size(93, 62);
+            this.btnPlayerInjuries.TabIndex = 10;
+            this.btnPlayerInjuries.Text = "Injuries";
+            this.btnPlayerInjuries.Click += new System.EventHandler(this.btnPlayerInjuries_Click);
+            // 
+            // btnPlayerStats
+            // 
+            this.btnPlayerStats.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnPlayerStats.Location = new System.Drawing.Point(646, 269);
+            this.btnPlayerStats.Name = "btnPlayerStats";
+            this.btnPlayerStats.Size = new System.Drawing.Size(93, 62);
+            this.btnPlayerStats.TabIndex = 11;
+            this.btnPlayerStats.Text = "Stats";
+            this.btnPlayerStats.Click += new System.EventHandler(this.btnPlayerStats_Click);
+            // 
             // PlayersForm
             // 
-            this.ClientSize = new System.Drawing.Size(737, 546);
+            this.ClientSize = new System.Drawing.Size(775, 510);
+            this.Controls.Add(this.btnPlayerStats);
+            this.Controls.Add(this.btnPlayerInjuries);
             this.Controls.Add(this.search);
             this.Controls.Add(this.btnBack);
             this.Controls.Add(this.txtid);
@@ -188,8 +211,10 @@ namespace EPL_DBMS.Forms
 
         }
 
+
         #endregion
 
-      
+        private Button btnPlayerInjuries;
+        private Button btnPlayerStats;
     }
 }
