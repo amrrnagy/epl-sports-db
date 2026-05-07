@@ -62,15 +62,7 @@ namespace EPL_DBMS.Forms
                     txtstadiumid.ForeColor = System.Drawing.Color.Black;
 
                 }
-                else
-                {
-                    // Clear fields if no team found
-                    txtname.Clear();
-                    txtfounded.Clear();
-                    txtkitcolor.Clear();
-                    txtstadiumid.Clear();
-                    MessageBox.Show("No team found with ID: " + id, "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+
             }
         }
 
@@ -214,6 +206,5 @@ namespace EPL_DBMS.Forms
             txtstadiumid.Clear();
             txtid.Clear();
         }
-
     }
 }
