@@ -36,6 +36,7 @@
             this.update = new System.Windows.Forms.Button();
             this.add = new System.Windows.Forms.Button();
             this.dataGridViewTeams = new System.Windows.Forms.DataGridView();
+            this.btnTeamStats = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewTeams)).BeginInit();
             this.SuspendLayout();
             // 
@@ -44,7 +45,7 @@
             this.txtname.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtname.Location = new System.Drawing.Point(102, 70);
             this.txtname.Name = "txtname";
-            this.txtname.Size = new System.Drawing.Size(93, 20);
+            this.txtname.Size = new System.Drawing.Size(93, 22);
             this.txtname.TabIndex = 17;
             // 
             // txtfounded
@@ -52,7 +53,7 @@
             this.txtfounded.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtfounded.Location = new System.Drawing.Point(257, 70);
             this.txtfounded.Name = "txtfounded";
-            this.txtfounded.Size = new System.Drawing.Size(93, 20);
+            this.txtfounded.Size = new System.Drawing.Size(93, 22);
             this.txtfounded.TabIndex = 18;
             // 
             // txtkitcolor
@@ -60,7 +61,7 @@
             this.txtkitcolor.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtkitcolor.Location = new System.Drawing.Point(411, 70);
             this.txtkitcolor.Name = "txtkitcolor";
-            this.txtkitcolor.Size = new System.Drawing.Size(93, 20);
+            this.txtkitcolor.Size = new System.Drawing.Size(93, 22);
             this.txtkitcolor.TabIndex = 19;
             // 
             // txtstadiumid
@@ -68,7 +69,7 @@
             this.txtstadiumid.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtstadiumid.Location = new System.Drawing.Point(565, 70);
             this.txtstadiumid.Name = "txtstadiumid";
-            this.txtstadiumid.Size = new System.Drawing.Size(93, 20);
+            this.txtstadiumid.Size = new System.Drawing.Size(93, 22);
             this.txtstadiumid.TabIndex = 20;
             // 
             // txtid
@@ -99,7 +100,7 @@
             this.delete.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.delete.Location = new System.Drawing.Point(547, 119);
             this.delete.Name = "delete";
-            this.delete.Size = new System.Drawing.Size(93, 63);
+            this.delete.Size = new System.Drawing.Size(93, 37);
             this.delete.TabIndex = 27;
             this.delete.Text = "Delete";
             this.delete.Click += new System.EventHandler(this.btnDelete_Click);
@@ -109,7 +110,7 @@
             this.update.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.update.Location = new System.Drawing.Point(334, 119);
             this.update.Name = "update";
-            this.update.Size = new System.Drawing.Size(93, 63);
+            this.update.Size = new System.Drawing.Size(93, 37);
             this.update.TabIndex = 26;
             this.update.Text = "Update";
             this.update.Click += new System.EventHandler(this.btnUpdate_Click);
@@ -119,31 +120,42 @@
             this.add.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.add.Location = new System.Drawing.Point(121, 119);
             this.add.Name = "add";
-            this.add.Size = new System.Drawing.Size(93, 63);
+            this.add.Size = new System.Drawing.Size(93, 37);
             this.add.TabIndex = 25;
             this.add.Text = "Add";
             this.add.Click += new System.EventHandler(this.btnAdd_Click);
             // 
             // dataGridViewTeams
             // 
-            this.dataGridViewTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.dataGridViewTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewTeams.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewTeams.BackgroundColor = System.Drawing.SystemColors.ActiveBorder;
             this.dataGridViewTeams.ColumnHeadersHeight = 29;
-            this.dataGridViewTeams.Location = new System.Drawing.Point(11, 201);
+            this.dataGridViewTeams.Location = new System.Drawing.Point(11, 181);
             this.dataGridViewTeams.Name = "dataGridViewTeams";
             this.dataGridViewTeams.ReadOnly = true;
             this.dataGridViewTeams.RowHeadersWidth = 51;
             this.dataGridViewTeams.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewTeams.Size = new System.Drawing.Size(738, 404);
+            this.dataGridViewTeams.Size = new System.Drawing.Size(629, 303);
             this.dataGridViewTeams.TabIndex = 28;
             this.dataGridViewTeams.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewTeams_CellClick);
             // 
+            // btnTeamStats
+            // 
+            this.btnTeamStats.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.btnTeamStats.Location = new System.Drawing.Point(655, 290);
+            this.btnTeamStats.Name = "btnTeamStats";
+            this.btnTeamStats.Size = new System.Drawing.Size(93, 62);
+            this.btnTeamStats.TabIndex = 29;
+            this.btnTeamStats.Text = "Stats";
+            this.btnTeamStats.Click += new System.EventHandler(this.btnTeamStats_Click);
+            // 
             // TeamsForm
             // 
-            this.ClientSize = new System.Drawing.Size(760, 617);
+            this.ClientSize = new System.Drawing.Size(760, 496);
+            this.Controls.Add(this.btnTeamStats);
             this.Controls.Add(this.txtfounded);
             this.Controls.Add(this.txtname);
             this.Controls.Add(this.dataGridViewTeams);
@@ -175,6 +187,7 @@
         private System.Windows.Forms.Button update;
         private System.Windows.Forms.Button add;
         private System.Windows.Forms.DataGridView dataGridViewTeams;
+        private System.Windows.Forms.Button btnTeamStats;
     }
 
 }

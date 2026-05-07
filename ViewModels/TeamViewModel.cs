@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EPL_DBMS.Models;
 
 namespace EPL_DBMS.ViewModels
 {
+    // Inherits ALL properties from Team:
+    //   TeamId, TeamName, YearFounded, HomeKitColor, StadiumId
     public class TeamViewModel : Team
     {
-        public string ManagerName { get; set; }
+        // FK: Stadium_ID -> Stadiums.Stadium_Name
+        public string StadiumName { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace EPL_DBMS.DataAccess
             return list;
         }
 
-        public static List<ManagerPreviousTeamViewModel> GetHistoryWithNamesByManager(int managerId)
+        public static List<ManagerPreviousTeamViewModel> GetViewByManagerId(int managerId)
         {
             var list = new List<ManagerPreviousTeamViewModel>();
             using (var con = DatabaseHelper.GetConnection())
@@ -32,11 +32,11 @@ namespace EPL_DBMS.DataAccess
                 con.Open();
                 // Join BOTH the Managers table and the Teams table
                 string query = @"
-            SELECT h.*, m.Manager_Name, t.Team_Name 
-            FROM Manager_Previous_Teams h
-            INNER JOIN Managers m ON h.Manager_ID = m.Manager_ID
-            INNER JOIN Teams t ON h.Previous_Team_ID = t.Team_ID
-            WHERE h.Manager_ID = @ManagerId";
+                                SELECT h.*, m.Manager_Name, t.Team_Name 
+                                FROM Manager_Previous_Teams h
+                                INNER JOIN Managers m ON h.Manager_ID = m.Manager_ID
+                                INNER JOIN Teams t ON h.Previous_Team_ID = t.Team_ID
+                                WHERE h.Manager_ID = @ManagerId";
 
                 var cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@ManagerId", managerId);

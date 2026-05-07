@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
+using EPL_DBMS.ViewModels;
 
 namespace EPL_DBMS.DataAccess
 {
@@ -17,6 +18,45 @@ namespace EPL_DBMS.DataAccess
                 using (var reader = cmd.ExecuteReader())
                     while (reader.Read())
                         list.Add(Map(reader));
+            }
+            return list;
+        }
+
+        // Make sure to add this at the top of your file if you haven't already:
+
+        public static List<PlayerViewModel> GetAllPlayersForGrid()
+        {
+            var list = new List<PlayerViewModel>();
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+
+                // We use an INNER JOIN to connect Players to Teams
+                string query = @"
+                                SELECT p.*, t.Team_Name 
+                                FROM Players p
+                                INNER JOIN Teams t ON p.Team_ID = t.Team_ID";
+
+                var cmd = new SqlCommand(query, con);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new PlayerViewModel
+                        {
+                            // 1. The base properties (inherited from Player)
+                            PlayerId = (int)reader["Player_ID"],
+                            PlayerName = reader["Player_Name"].ToString(),
+                            Position = reader["Position"].ToString(),
+                            Age = (int)reader["Age"],
+                            Nationality = reader["Nationality"].ToString(),
+                            TeamId = (int)reader["Team_ID"],
+
+                            // 2. The extra UI property
+                            TeamName = reader["Team_Name"].ToString()
+                        });
+                    }
+                }
             }
             return list;
         }
