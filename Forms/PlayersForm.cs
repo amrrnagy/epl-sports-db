@@ -18,6 +18,7 @@ namespace EPL_DBMS.Forms
     {
         // NEW: Teams list for the ComboBox
         private List<Team> _teams;
+        private List<string> _positions;
 
         private void NavigateTo(Form childForm)
         {
@@ -38,11 +39,11 @@ namespace EPL_DBMS.Forms
 
             // NEW: Load team dropdown before loading grid
             LoadTeamComboBox();
+            LoadPositionComboBox();
             LoadPlayersGrid();
 
             // FIX: Placeholders now call UIHelper — no duplicate code
             UIHelper.SetPlaceholder(txtname, "Full Name");
-            UIHelper.SetPlaceholder(txtposition, "Position (e.g. FWD)");
             UIHelper.SetPlaceholder(txtage, "Age");
             UIHelper.SetPlaceholder(txtnationality, "Nationality");
             UIHelper.SetPlaceholder(txtid, "ENTER PLAYER ID");
@@ -74,6 +75,13 @@ namespace EPL_DBMS.Forms
             cmbTeam.DisplayMember = "TeamName";
             cmbTeam.ValueMember = "TeamId";
             cmbTeam.SelectedIndex = -1;
+        }
+
+        private void LoadPositionComboBox()
+        {
+            _positions = PlayerRepository.GetAllPositions();
+            cmbPosition.DataSource = _positions;
+            cmbPosition.SelectedIndex = -1;
         }
 
         private void LoadPlayersGrid()
@@ -120,14 +128,18 @@ namespace EPL_DBMS.Forms
 
             PopulateFields(player);
 
+            // Highlight the row in the DataGridView
             foreach (DataGridViewRow row in dataGridViewPlayers.Rows)
             {
                 if (row.Cells["PlayerId"].Value != null &&
-                    (int)row.Cells["PlayerId"].Value == id)
+                   (int)row.Cells["PlayerId"].Value == id)
                 {
                     dataGridViewPlayers.ClearSelection();
                     row.Selected = true;
-                    dataGridViewPlayers.CurrentCell = row.Cells[0];
+
+                    // ADJUSTMENT: Use a explicitly named visible column to avoid the invisible cell crash
+                    dataGridViewPlayers.CurrentCell = row.Cells["PlayerName"];
+
                     dataGridViewPlayers.FirstDisplayedScrollingRowIndex = row.Index;
                     break;
                 }
@@ -143,10 +155,9 @@ namespace EPL_DBMS.Forms
                 var p = new Player
                 {
                     PlayerName = txtname.Text.Trim(),
-                    Position = txtposition.Text.Trim(),
+                    Position = (string)cmbPosition.SelectedValue,
                     Age = int.Parse(txtage.Text),
                     Nationality = txtnationality.Text.Trim(),
-                    // FIX: Read from ComboBox, not TextBox
                     TeamId = (int)cmbTeam.SelectedValue
                 };
 
@@ -182,11 +193,11 @@ namespace EPL_DBMS.Forms
                 {
                     PlayerId = int.Parse(txtid.Text),
                     PlayerName = txtname.Text.Trim(),
-                    Position = txtposition.Text.Trim(),
                     Age = int.Parse(txtage.Text),
                     Nationality = txtnationality.Text.Trim(),
                     // FIX: Read from ComboBox
-                    TeamId = (int)cmbTeam.SelectedValue
+                    TeamId = (int)cmbTeam.SelectedValue,
+                    Position = (string)cmbPosition.SelectedValue
                 };
 
                 PlayerRepository.Update(p);
@@ -243,9 +254,9 @@ namespace EPL_DBMS.Forms
 
             txtid.Text = row.Cells["PlayerId"].Value.ToString();
             txtname.Text = row.Cells["PlayerName"].Value.ToString();
-            txtposition.Text = row.Cells["Position"].Value.ToString();
             txtage.Text = row.Cells["Age"].Value.ToString();
             txtnationality.Text = row.Cells["Nationality"].Value.ToString();
+            cmbPosition.SelectedItem = row.Cells["Position"].Value?.ToString();
 
             // FIX: Set ComboBox by TeamId (hidden column) instead of showing raw ID
             cmbTeam.SelectedValue = row.Cells["TeamId"].Value;
@@ -262,11 +273,11 @@ namespace EPL_DBMS.Forms
         private void PopulateFields(Player p)
         {
             txtname.Text = p.PlayerName;
-            txtposition.Text = p.Position;
             txtage.Text = p.Age.ToString();
             txtnationality.Text = p.Nationality;
-            // FIX: Set ComboBox by value
             cmbTeam.SelectedValue = p.TeamId;
+            cmbPosition.SelectedItem = p.Position;
+
             SetAllTextBlack();
 
             // FIX: Use correctly named buttons!
@@ -277,7 +288,6 @@ namespace EPL_DBMS.Forms
         private bool ValidateInputs()
         {
             if (string.IsNullOrWhiteSpace(txtname.Text) || txtname.Text == "Full Name" ||
-                string.IsNullOrWhiteSpace(txtposition.Text) || txtposition.Text == "Position (e.g. FWD)" ||
                 string.IsNullOrWhiteSpace(txtnationality.Text) || txtnationality.Text == "Nationality")
             {
                 MessageBox.Show("Please fill all required fields.",
@@ -300,23 +310,30 @@ namespace EPL_DBMS.Forms
                 return false;
             }
 
+            if (cmbPosition.SelectedIndex < 0)
+            {
+                MessageBox.Show("Please select a position from the dropdown.",
+                    "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
             return true;
         }
 
         private void SetAllTextBlack()
         {
-            foreach (var txt in new TextBox[] { txtname, txtposition, txtage, txtnationality, txtid })
+            foreach (var txt in new TextBox[] { txtname, txtage, txtnationality, txtid })
                 txt.ForeColor = Color.Black;
         }
 
         private void ClearFields()
         {
             UIHelper.SetPlaceholder(txtname, "Full Name");
-            UIHelper.SetPlaceholder(txtposition, "Position (e.g. FWD)");
             UIHelper.SetPlaceholder(txtage, "Age");
             UIHelper.SetPlaceholder(txtnationality, "Nationality");
             UIHelper.SetPlaceholder(txtid, "ENTER PLAYER ID");
             cmbTeam.SelectedIndex = -1;  // NEW: Reset ComboBox too
+            cmbPosition.SelectedIndex = -1;  // NEW: Reset ComboBox too
         }
 
         private void btnBack_Click(object sender, EventArgs e) => this.Close();

@@ -1,47 +1,88 @@
+using System;
 using System.Drawing;
-using System.Drawing.Drawing2D; // NEW: Required for drawing curved paths
+using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace EPL_DBMS.Utils
 {
     public static class UIHelper
     {
+        // ── Win32 P/Invoke ──────────────────────────────────────────────────────
+        // EM_SETCUEBANNER (0x1501) instructs the Edit control to display a
+        // greyed-out cue string when the control is empty and unfocused.
+        // wParam = 1  → show the banner even when the control has focus.
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessage(
+            IntPtr hWnd,
+            int msg,
+            int wParam,
+            [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+
+        private const int EM_SETCUEBANNER = 0x1501;
+
         // ── Shared accent colors ────────────────────────────────────────────────
-        public static readonly Color PrimaryAccent = Color.FromArgb(32, 84, 147);   // EPL dark blue
+        public static readonly Color PrimaryAccent = Color.FromArgb(32, 84, 147);
         public static readonly Color AccentHover = Color.FromArgb(50, 110, 180);
         public static readonly Color DangerColor = Color.FromArgb(192, 57, 43);
         public static readonly Color SuccessColor = Color.FromArgb(39, 174, 96);
-        public static readonly Color SurfaceColor = Color.FromArgb(245, 246, 248); // Light gray background
+        public static readonly Color NeutralGray = Color.FromArgb(108, 117, 125);
+        public static readonly Color SurfaceColor = Color.FromArgb(245, 246, 248);
         public static readonly Color GridHeaderColor = Color.FromArgb(32, 84, 147);
         public static readonly Color PlaceholderGray = Color.FromArgb(160, 160, 160);
+        public static readonly Color LabelTextGray = Color.FromArgb(90, 90, 90);
+        public static readonly Color SearchBoxYellow = Color.FromArgb(255, 255, 225);
 
-        // ── Placeholder logic ───────────────────────────────────────────────────
-        public static void SetPlaceholder(TextBox txt, string placeholder)
+        // ── Form Styling ────────────────────────────────────────────────────────
+        public static void StyleForm(Form form)
         {
-            txt.Text = placeholder;
-            txt.ForeColor = PlaceholderGray;
-
-            txt.GotFocus += (s, e) =>
-            {
-                if (txt.Text == placeholder)
-                {
-                    txt.Text = string.Empty;
-                    txt.ForeColor = Color.Black;
-                }
-            };
-
-            txt.LostFocus += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(txt.Text))
-                {
-                    txt.Text = placeholder;
-                    txt.ForeColor = PlaceholderGray;
-                }
-            };
+            form.BackColor = SurfaceColor;
+            form.Font = new Font("Segoe UI", 9f);
+            form.StartPosition = FormStartPosition.CenterScreen;
         }
 
-        // ── Apply modern flat styling to a Button with CURVED BORDERS ───────────
-        // NEW: Added an optional 'borderRadius' parameter (defaults to 10)
+        // ── Placeholder (Win32 cue banner) ──────────────────────────────────────
+        // Uses EM_SETCUEBANNER instead of the old text-swap hack.
+        // TextBox.Text remains empty until the user types — no special-casing
+        // required in validation logic.
+        public static void SetPlaceholder(TextBox txt, string placeholder)
+        {
+            // The handle must be created before sending the message.
+            // Accessing txt.Handle forces creation if the control is not yet shown.
+            SendMessage(txt.Handle, EM_SETCUEBANNER, 1, placeholder);
+        }
+
+        // ── Standard Controls Styling ───────────────────────────────────────────
+        public static void StyleTextBox(TextBox txt)
+        {
+            txt.BorderStyle = BorderStyle.FixedSingle;
+            txt.BackColor = Color.White;
+        }
+
+        public static void StyleSearchBox(TextBox txt)
+        {
+            txt.BorderStyle = BorderStyle.FixedSingle;
+            txt.BackColor = SearchBoxYellow;
+            txt.Font = new Font("Segoe UI", 10f, FontStyle.Bold);
+            txt.TextAlign = HorizontalAlignment.Center;
+        }
+
+        public static void StyleComboBox(ComboBox cmb)
+        {
+            cmb.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmb.FlatStyle = FlatStyle.Flat;
+            cmb.Font = new Font("Segoe UI", 9.5f);
+        }
+
+        public static void StyleLabel(Label lbl)
+        {
+            lbl.AutoSize = true;
+            lbl.Font = new Font("Segoe UI", 8.25f);
+            lbl.ForeColor = LabelTextGray;
+            lbl.BackColor = Color.Transparent;
+        }
+
+        // ── Button Styling with Rounded Borders ─────────────────────────────────
         public static void StyleButton(Button btn, Color backColor, int borderRadius = 10)
         {
             btn.FlatStyle = FlatStyle.Flat;
@@ -51,50 +92,56 @@ namespace EPL_DBMS.Utils
             btn.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
             btn.Cursor = Cursors.Hand;
 
-            // Subtle hover effect
-            btn.MouseEnter += (s, e) =>
-            {
-                btn.BackColor = ControlPaint.Light(backColor, 0.15f);
-            };
-            btn.MouseLeave += (s, e) =>
-            {
-                btn.BackColor = backColor;
-            };
+            btn.MouseEnter += (s, e) => btn.BackColor = ControlPaint.Light(backColor, 0.15f);
+            btn.MouseLeave += (s, e) => btn.BackColor = backColor;
 
-            // NEW: Apply the curved corners immediately
             ApplyRoundedRegion(btn, borderRadius);
-
-            // NEW: Ensure corners stay curved even if the window/button is resized
             btn.Resize += (s, e) => ApplyRoundedRegion(btn, borderRadius);
         }
 
-        // ── NEW: Helper method to draw and clip the curved corners ──────────────
+        // ── FIX 1: GDI Memory Leak ───────────────────────────────────────────────
+        // Before: GraphicsPath was not disposed → GDI handle leak on every resize.
+        //         Old Region was not disposed before replacement → second leak.
+        //
+        // After:  GraphicsPath is wrapped in a 'using' block for deterministic
+        //         disposal. The existing Region is explicitly disposed via the
+        //         null-conditional operator before a new one is assigned.
         private static void ApplyRoundedRegion(Control control, int radius)
         {
             if (control.Width == 0 || control.Height == 0) return;
 
-            GraphicsPath path = new GraphicsPath();
+            using (var path = new GraphicsPath())
+            {
+                path.AddArc(0, 0, radius, radius, 180, 90);
+                path.AddArc(control.Width - radius, 0, radius, radius, 270, 90);
+                path.AddArc(control.Width - radius, control.Height - radius, radius, radius, 0, 90);
+                path.AddArc(0, control.Height - radius, radius, radius, 90, 90);
+                path.CloseAllFigures();
 
-            // Draw the 4 curved corners
-            path.AddArc(0, 0, radius, radius, 180, 90);                                       // Top-Left
-            path.AddArc(control.Width - radius, 0, radius, radius, 270, 90);                  // Top-Right
-            path.AddArc(control.Width - radius, control.Height - radius, radius, radius, 0, 90); // Bottom-Right
-            path.AddArc(0, control.Height - radius, radius, radius, 90, 90);                  // Bottom-Left
-
-            path.CloseAllFigures();
-
-            // Apply the new curved shape to the control
-            control.Region = new Region(path);
+                // Dispose the previous Region to release its GDI handle before
+                // replacing it — critical when called repeatedly on every resize.
+                control.Region?.Dispose();
+                control.Region = new Region(path);
+            }
+            // 'path' is disposed here by the 'using' block.
         }
 
-        // ── Apply modern styling to a DataGridView ──────────────────────────────
+        // ── DataGridView Styling ────────────────────────────────────────────────
         public static void StyleGrid(DataGridView dgv)
         {
             dgv.BackgroundColor = Color.White;
             dgv.BorderStyle = BorderStyle.None;
             dgv.GridColor = Color.FromArgb(220, 220, 220);
 
+            dgv.RowHeadersVisible = false;
+            dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgv.ReadOnly = true;
+            dgv.AllowUserToAddRows = false;
+
             dgv.EnableHeadersVisualStyles = false;
+            dgv.ColumnHeadersHeight = 36;
+            dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             dgv.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
             {
                 BackColor = GridHeaderColor,
@@ -103,13 +150,12 @@ namespace EPL_DBMS.Utils
                 Alignment = DataGridViewContentAlignment.MiddleLeft,
                 Padding = new Padding(4, 0, 0, 0)
             };
-            dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dgv.ColumnHeadersHeight = 36;
 
             dgv.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
             {
                 BackColor = Color.FromArgb(248, 249, 252)
             };
+
             dgv.DefaultCellStyle = new DataGridViewCellStyle
             {
                 Font = new Font("Segoe UI", 9f),
@@ -119,7 +165,7 @@ namespace EPL_DBMS.Utils
                 SelectionForeColor = Color.Black,
                 Padding = new Padding(3, 2, 3, 2)
             };
-            dgv.RowHeadersVisible = false;
+
             dgv.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
         }
     }
