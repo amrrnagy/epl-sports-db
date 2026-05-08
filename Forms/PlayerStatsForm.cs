@@ -8,27 +8,23 @@ namespace EPL_DBMS.Forms
     {
         private readonly int? _playerId;
 
-        // ── Contextual Constructors ──────────────────────────────────────────────
-
-        // Called from Main Menu — loads ALL player stats league-wide
+        // 1. GLOBAL CONSTRUCTOR (Called from Main Form)
         public PlayerStatsForm()
         {
             InitializeComponent();
-            _playerId  = null;
-            this.Text  = "League Top Performers";
+            _playerId = null;
+            this.Text = "League Top Performers";
             this.Load += Form_Load;
         }
 
-        // Called from PlayersForm — loads stats for one specific player
+        // 2. SPECIFIC CONSTRUCTOR (Called from Players Form)
         public PlayerStatsForm(int playerId, string playerName)
         {
             InitializeComponent();
-            _playerId  = playerId;
-            this.Text  = $"{playerName} - Match Statistics";
+            _playerId = playerId;
+            this.Text = $"{playerName} - Match Statistics";
             this.Load += Form_Load;
         }
-
-        // ── Data Loading ─────────────────────────────────────────────────────────
 
         private void Form_Load(object sender, EventArgs e)
         {
@@ -36,40 +32,36 @@ namespace EPL_DBMS.Forms
             {
                 var dgv = dataGridViewPlayerStats;
 
-                // ── PURE ADO.NET ROUTING ─────────────────────────────────────
                 if (_playerId.HasValue)
                 {
-                    // Contextual path: SQL WHERE clause filters by player ID
+                    // SPECIFIC PLAYER (Shows the raw individual match log)
                     dgv.DataSource = PlayerStatRepository.GetStatsByPlayerId(_playerId.Value);
 
-                    // Hide raw IDs — the form title already identifies the player
-                    dgv.Columns["PlayerId"].Visible   = false;
-                    dgv.Columns["PlayerName"].Visible = false; // redundant with title
+                    dgv.Columns["PlayerStatId"].Visible = false;
+                    dgv.Columns["PlayerId"].Visible = false;
+                    dgv.Columns["PlayerName"].Visible = false; // Redundant with window title
+
+                    dgv.Columns["MatchId"].HeaderText = "Match ID";
+                    dgv.Columns["GoalsScored"].HeaderText = "Goals";
+                    dgv.Columns["Assists"].HeaderText = "Assists";
+                    dgv.Columns["YellowCards"].HeaderText = "Yellow Cards";
+                    dgv.Columns["RedCards"].HeaderText = "Red Cards";
+                    dgv.Columns["MinutesPlayed"].HeaderText = "Minutes Played";
                 }
                 else
                 {
-                    // Global path: returns all stats via INNER JOIN
-                    dgv.DataSource = PlayerStatRepository.GetAllPlayerStatsForGrid();
+                    // GLOBAL DASHBOARD (Uses the new Statistical Top Performers Aggregation!)
+                    dgv.DataSource = PlayerStatRepository.GetLeagueTopPerformers();
 
-                    // Hide raw FK ID; show the human-readable name instead
-                    dgv.Columns["PlayerId"].Visible = false;
+                    dgv.Columns["PlayerName"].HeaderText = "Player";
+                    dgv.Columns["PlayerName"].DisplayIndex = 0;
 
-                    dgv.Columns["PlayerName"].HeaderText   = "Player";
-                    dgv.Columns["PlayerName"].DisplayIndex = 0; // Move to the far left
+                    dgv.Columns["TotalGoals"].HeaderText = "Total Goals";
+                    dgv.Columns["TotalAssists"].HeaderText = "Total Assists";
+                    dgv.Columns["TotalYellowCards"].HeaderText = "Total Yellow Cards";
+                    dgv.Columns["TotalRedCards"].HeaderText = "Total Red Cards";
+                    dgv.Columns["TotalMinutes"].HeaderText = "Total Minutes";
                 }
-
-                // ── Common column formatting ─────────────────────────────────
-                dgv.Columns["PlayerStatId"].Visible      = false; // internal PK, not useful to display
-                dgv.Columns["MatchId"].HeaderText        = "Match ID";
-                dgv.Columns["GoalsScored"].HeaderText    = "Goals";
-                dgv.Columns["Assists"].HeaderText        = "Assists";
-                dgv.Columns["YellowCards"].HeaderText    = "Yellow Cards";
-                dgv.Columns["RedCards"].HeaderText       = "Red Cards";
-                dgv.Columns["MinutesPlayed"].HeaderText  = "Minutes Played";
-
-                // Hide MatchDisplay if it was ever populated (not set in this ViewModel)
-                if (dgv.Columns.Contains("MatchDisplay"))
-                    dgv.Columns["MatchDisplay"].Visible = false;
 
                 dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }

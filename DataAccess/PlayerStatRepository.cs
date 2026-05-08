@@ -129,6 +129,50 @@ namespace EPL_DBMS.DataAccess
             return list;
         }
 
+        // ── NEW: Statistical Player Standings (Aggregated Data) ──────────────────
+
+        public static List<PlayerTopPerformerViewModel> GetLeagueTopPerformers()
+        {
+            var list = new List<PlayerTopPerformerViewModel>();
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+
+                // Group by Player Name to calculate season totals
+                string query = @"
+                    SELECT 
+                        p.Player_Name,
+                        SUM(ps.Goals_Scored) AS TotalGoals,
+                        SUM(ps.Assists) AS TotalAssists,
+                        SUM(ps.Yellow_Cards) AS TotalYellowCards,
+                        SUM(ps.Red_Cards) AS TotalRedCards,
+                        SUM(ps.Minutes_Played) AS TotalMinutes
+                    FROM Players p
+                    INNER JOIN Player_Stats ps ON p.Player_ID = ps.Player_ID
+                    GROUP BY p.Player_Name
+                    ORDER BY TotalGoals DESC, TotalAssists DESC"; // Rank by Golden Boot rules
+
+                var cmd = new SqlCommand(query, con);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new PlayerTopPerformerViewModel
+                        {
+                            PlayerName = reader["Player_Name"].ToString(),
+                            // SQL SUM() can return different types, Convert.ToInt32 is safest here
+                            TotalGoals = reader["TotalGoals"] == System.DBNull.Value ? 0 : System.Convert.ToInt32(reader["TotalGoals"]),
+                            TotalAssists = reader["TotalAssists"] == System.DBNull.Value ? 0 : System.Convert.ToInt32(reader["TotalAssists"]),
+                            TotalYellowCards = reader["TotalYellowCards"] == System.DBNull.Value ? 0 : System.Convert.ToInt32(reader["TotalYellowCards"]),
+                            TotalRedCards = reader["TotalRedCards"] == System.DBNull.Value ? 0 : System.Convert.ToInt32(reader["TotalRedCards"]),
+                            TotalMinutes = reader["TotalMinutes"] == System.DBNull.Value ? 0 : System.Convert.ToInt32(reader["TotalMinutes"])
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
         // ── Private mappers ──────────────────────────────────────────────────────
 
         private static PlayerStat Map(SqlDataReader r) => new PlayerStat

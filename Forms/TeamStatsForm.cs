@@ -8,6 +8,7 @@ namespace EPL_DBMS.Forms
     {
         private readonly int? _teamId;
 
+        // 1. GLOBAL CONSTRUCTOR (Called from Main Form)
         public TeamStatsForm()
         {
             InitializeComponent();
@@ -16,6 +17,7 @@ namespace EPL_DBMS.Forms
             this.Load += Form_Load;
         }
 
+        // 2. SPECIFIC CONSTRUCTOR (Called from Teams Form)
         public TeamStatsForm(int teamId, string teamName)
         {
             InitializeComponent();
@@ -24,41 +26,39 @@ namespace EPL_DBMS.Forms
             this.Load += Form_Load;
         }
 
-        // FIX 1: Added (object sender, EventArgs e)
         private void Form_Load(object sender, EventArgs e)
         {
             try
             {
                 var dgv = dataGridViewTeamStats;
 
-                // FIX 2: PURE ADO.NET ROUTING
                 if (_teamId.HasValue)
                 {
+                    // SPECIFIC TEAM (Uses the MatchDisplay format)
                     dgv.DataSource = TeamStatRepository.GetStatsByTeamId(_teamId.Value);
+
+                    dgv.Columns["TeamStatId"].Visible = false;
+                    dgv.Columns["TeamId"].Visible = false;
+                    dgv.Columns["MatchId"].Visible = false; // Hide raw ID
+                    dgv.Columns["TeamName"].Visible = false; // Hidden because it's in the Form Title
+
+                    dgv.Columns["MatchDisplay"].HeaderText = "Match Date & Opponent";
+                    dgv.Columns["MatchDisplay"].DisplayIndex = 0;
+                    dgv.Columns["PossessionPercentage"].HeaderText = "Possession %";
+                    dgv.Columns["ShotsOnTarget"].HeaderText = "Shots on Target";
                 }
                 else
                 {
-                    dgv.DataSource = TeamStatRepository.GetAllTeamStatsWithNames();
+                    // GLOBAL DASHBOARD (Uses the new Statistical Standings!)
+                    dgv.DataSource = TeamStatRepository.GetLeagueStatisticalStandings();
+
+                    dgv.Columns["TeamName"].HeaderText = "Team";
+                    dgv.Columns["MatchesPlayed"].HeaderText = "Matches Played";
+                    dgv.Columns["AvgPossession"].HeaderText = "Avg Possession %";
+                    dgv.Columns["TotalShotsOnTarget"].HeaderText = "Total Shots on Target";
+                    dgv.Columns["TotalCorners"].HeaderText = "Total Corners";
+                    dgv.Columns["TotalFouls"].HeaderText = "Total Fouls";
                 }
-
-                // Hide the raw database IDs
-                dgv.Columns["TeamStatId"].Visible = false;
-                dgv.Columns["TeamId"].Visible = false;
-
-                // Hide MatchDisplay since we haven't mapped it yet in SQL
-                if (dgv.Columns.Contains("MatchDisplay"))
-                    dgv.Columns["MatchDisplay"].Visible = false;
-
-                // Format the ViewModel column
-                dgv.Columns["TeamName"].HeaderText = "Team";
-                dgv.Columns["TeamName"].DisplayIndex = 0; // Move to the far left
-
-                // Format the rest
-                dgv.Columns["MatchId"].HeaderText = "Match ID";
-                dgv.Columns["PossessionPercentage"].HeaderText = "Possession %";
-                dgv.Columns["ShotsOnTarget"].HeaderText = "Shots on Target";
-                dgv.Columns["Corners"].HeaderText = "Corners";
-                dgv.Columns["Fouls"].HeaderText = "Fouls";
 
                 dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }

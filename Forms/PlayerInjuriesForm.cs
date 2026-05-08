@@ -8,27 +8,23 @@ namespace EPL_DBMS.Forms
     {
         private readonly int? _playerId;
 
-        // ── Contextual Constructors ──────────────────────────────────────────────
-
-        // Called from Main Menu — loads ALL injuries league-wide
+        // 1. GLOBAL CONSTRUCTOR (Called from Main Form)
         public PlayerInjuriesForm()
         {
             InitializeComponent();
-            _playerId  = null;
-            this.Text  = "League Injury Report";
+            _playerId = null;
+            this.Text = "League Injury Report";
             this.Load += Form_Load;
         }
 
-        // Called from PlayersForm — loads injuries for one specific player
+        // 2. SPECIFIC CONSTRUCTOR (Called from Players Form)
         public PlayerInjuriesForm(int playerId, string playerName)
         {
             InitializeComponent();
-            _playerId  = playerId;
-            this.Text  = $"{playerName} - Injury History";
+            _playerId = playerId;
+            this.Text = $"{playerName} - Injury History";
             this.Load += Form_Load;
         }
-
-        // ── Data Loading ─────────────────────────────────────────────────────────
 
         private void Form_Load(object sender, EventArgs e)
         {
@@ -39,29 +35,28 @@ namespace EPL_DBMS.Forms
                 // ── PURE ADO.NET ROUTING ─────────────────────────────────────
                 if (_playerId.HasValue)
                 {
-                    // Contextual path: SQL WHERE clause filters by player ID
+                    // SPECIFIC PLAYER (Shows the raw individual injury log)
                     dgv.DataSource = PlayerInjuryRepository.GetViewByPlayerId(_playerId.Value);
 
-                    // Hide raw ID — the form title already identifies the player
-                    dgv.Columns["PlayerId"].Visible    = false;
-                    dgv.Columns["PlayerName"].Visible  = false; // redundant with title
+                    dgv.Columns["PlayerId"].Visible = false;
+                    dgv.Columns["PlayerName"].Visible = false; // Redundant with window title
+
+                    dgv.Columns["InjuryDate"].HeaderText = "Injury Date";
+                    dgv.Columns["InjuryType"].HeaderText = "Injury Type";
+                    dgv.Columns["DaysOut"].HeaderText = "Days Out";
                 }
                 else
                 {
-                    // Global path: returns all injuries via INNER JOIN
-                    dgv.DataSource = PlayerInjuryRepository.GetAllInjuriesWithNames();
+                    // GLOBAL DASHBOARD (Uses the new Statistical Aggregation!)
+                    dgv.DataSource = PlayerInjuryRepository.GetLeagueInjuryStatistics();
 
-                    // Hide raw FK ID; show the human-readable name instead
-                    dgv.Columns["PlayerId"].Visible = false;
+                    dgv.Columns["PlayerName"].HeaderText = "Player";
+                    dgv.Columns["PlayerName"].DisplayIndex = 0;
 
-                    dgv.Columns["PlayerName"].HeaderText   = "Player";
-                    dgv.Columns["PlayerName"].DisplayIndex = 0; // Move to the far left
+                    dgv.Columns["TotalInjuries"].HeaderText = "Total Injuries";
+                    dgv.Columns["TotalDaysOut"].HeaderText = "Total Days Out";
+                    dgv.Columns["LastInjuryDate"].HeaderText = "Last Injury Date";
                 }
-
-                // ── Common column formatting ─────────────────────────────────
-                dgv.Columns["InjuryDate"].HeaderText = "Injury Date";
-                dgv.Columns["InjuryType"].HeaderText = "Injury Type";
-                dgv.Columns["DaysOut"].HeaderText    = "Days Out";
 
                 dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }
