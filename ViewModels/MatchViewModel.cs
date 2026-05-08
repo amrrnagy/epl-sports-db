@@ -1,22 +1,24 @@
-using EPL_DBMS.Models;
+using System;
 
 namespace EPL_DBMS.ViewModels
 {
-    // Inherits ALL properties from Match:
-    //   MatchId, MatchDate, HomeTeamId, AwayTeamId, StadiumId, RefereeId,
-    //   HomeGoals, AwayGoals, Attendance
-    public class MatchViewModel : Match
+    public class MatchViewModel
     {
-        // FK: Home_Team_ID  -> Teams.Team_Name
+        // Base Properties
+        public int MatchId { get; set; }
+        public DateTime MatchDate { get; set; }
+        public int HomeTeamId { get; set; }
+        public int AwayTeamId { get; set; }
+        public int StadiumId { get; set; }
+        public int RefereeId { get; set; }
+        public int HomeGoals { get; set; }
+        public int AwayGoals { get; set; }
+        public int Attendance { get; set; }
+
+        // Joined UI Properties
         public string HomeTeamName { get; set; }
-
-        // FK: Away_Team_ID  -> Teams.Team_Name
         public string AwayTeamName { get; set; }
-
-        // FK: Stadium_ID    -> Stadiums.Stadium_Name
-        public string StadiumName  { get; set; }
-
-        // FK: Referee_ID    -> Referees.Referee_Name
-        public string RefereeName  { get; set; }
+        public string StadiumName { get; set; }
+        public string RefereeName { get; set; }
     }
 }

@@ -8,10 +8,6 @@ namespace EPL_DBMS.Utils
 {
     public static class UIHelper
     {
-        // ── Win32 P/Invoke ──────────────────────────────────────────────────────
-        // EM_SETCUEBANNER (0x1501) instructs the Edit control to display a
-        // greyed-out cue string when the control is empty and unfocused.
-        // wParam = 1  → show the banner even when the control has focus.
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr SendMessage(
             IntPtr hWnd,
@@ -41,10 +37,6 @@ namespace EPL_DBMS.Utils
             form.StartPosition = FormStartPosition.CenterScreen;
         }
 
-        // ── Placeholder (Win32 cue banner) ──────────────────────────────────────
-        // Uses EM_SETCUEBANNER instead of the old text-swap hack.
-        // TextBox.Text remains empty until the user types — no special-casing
-        // required in validation logic.
         public static void SetPlaceholder(TextBox txt, string placeholder)
         {
             // The handle must be created before sending the message.
@@ -99,13 +91,6 @@ namespace EPL_DBMS.Utils
             btn.Resize += (s, e) => ApplyRoundedRegion(btn, borderRadius);
         }
 
-        // ── FIX 1: GDI Memory Leak ───────────────────────────────────────────────
-        // Before: GraphicsPath was not disposed → GDI handle leak on every resize.
-        //         Old Region was not disposed before replacement → second leak.
-        //
-        // After:  GraphicsPath is wrapped in a 'using' block for deterministic
-        //         disposal. The existing Region is explicitly disposed via the
-        //         null-conditional operator before a new one is assigned.
         private static void ApplyRoundedRegion(Control control, int radius)
         {
             if (control.Width == 0 || control.Height == 0) return;
