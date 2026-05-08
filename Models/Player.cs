@@ -1,5 +1,3 @@
-using System;
-
 namespace EPL_DBMS.Models
 {
     public class Player

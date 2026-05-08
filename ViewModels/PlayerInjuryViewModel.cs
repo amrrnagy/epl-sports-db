@@ -1,14 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPL_DBMS.Models;
 
 namespace EPL_DBMS.ViewModels
 {
-    public class PlayerInjuryViewModel : PlayerInjury
+    public class PlayerInjuryViewModel
     {
+        // Base Properties
+        public int PlayerId { get; set; }
+        public DateTime InjuryDate { get; set; }
+        public string InjuryType { get; set; }
+        public int DaysOut { get; set; }
+
+        // Joined UI Properties
         public string PlayerName { get; set; }
     }
 }

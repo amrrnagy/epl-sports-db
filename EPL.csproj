@@ -126,7 +126,7 @@
     <Compile Include="Forms\TeamStatsForm.Designer.cs">
       <DependentUpon>TeamStatsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\UIHelper.cs" />
+    <Compile Include="Utils\UIHelper.cs" />
     <Compile Include="Models\Manager.cs" />
     <Compile Include="Models\ManagerPreviousTeam.cs" />
     <Compile Include="Models\Match.cs" />
@@ -195,6 +195,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Scripts\database.sql" />
+    <Content Include="Scripts\storedProcedures.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
@@ -13,10 +14,13 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("SELECT * FROM Stadiums", con);
-                using (var reader = cmd.ExecuteReader())
-                    while (reader.Read())
-                        list.Add(Map(reader));
+                using (var cmd = new SqlCommand("sp_Stadium_GetAll", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
+                            list.Add(Map(reader));
+                }
             }
             return list;
         }
@@ -26,10 +30,13 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("SELECT * FROM Stadiums WHERE Stadium_ID = @id", con);
-                cmd.Parameters.AddWithValue("@id", id);
-                using (var reader = cmd.ExecuteReader())
-                    return reader.Read() ? Map(reader) : null;
+                using (var cmd = new SqlCommand("sp_Stadium_GetById", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@StadiumId", id);
+                    using (var reader = cmd.ExecuteReader())
+                        return reader.Read() ? Map(reader) : null;
+                }
             }
         }
 
@@ -38,13 +45,14 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand(
-                    "INSERT INTO Stadiums (Stadium_Name, City, Capacity) " +
-                    "VALUES (@name, @city, @cap)", con);
-                cmd.Parameters.AddWithValue("@name", s.StadiumName);
-                cmd.Parameters.AddWithValue("@city", s.City);
-                cmd.Parameters.AddWithValue("@cap",  s.Capacity);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Stadium_Insert", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@StadiumName", s.StadiumName);
+                    cmd.Parameters.AddWithValue("@City",        s.City);
+                    cmd.Parameters.AddWithValue("@Capacity",    s.Capacity);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -53,14 +61,15 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand(
-                    "UPDATE Stadiums SET Stadium_Name=@name, City=@city, Capacity=@cap " +
-                    "WHERE Stadium_ID=@id", con);
-                cmd.Parameters.AddWithValue("@name", s.StadiumName);
-                cmd.Parameters.AddWithValue("@city", s.City);
-                cmd.Parameters.AddWithValue("@cap",  s.Capacity);
-                cmd.Parameters.AddWithValue("@id",   s.StadiumId);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Stadium_Update", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@StadiumId",   s.StadiumId);
+                    cmd.Parameters.AddWithValue("@StadiumName", s.StadiumName);
+                    cmd.Parameters.AddWithValue("@City",        s.City);
+                    cmd.Parameters.AddWithValue("@Capacity",    s.Capacity);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -69,9 +78,12 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("DELETE FROM Stadiums WHERE Stadium_ID = @id", con);
-                cmd.Parameters.AddWithValue("@id", id);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Stadium_Delete", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@StadiumId", id);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
