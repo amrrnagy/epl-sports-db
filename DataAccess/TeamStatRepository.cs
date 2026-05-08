@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
@@ -10,9 +11,14 @@ namespace EPL_DBMS.DataAccess
     {
         // ── SQL Snippets for Reusability ───────────────────────────────────────
         private const string ViewQuery = @"
-            SELECT ts.*, t.Team_Name 
+            SELECT ts.*, t.Team_Name, m.Match_Date, 
+                   ht.Team_Name AS HomeTeam, 
+                   at.Team_Name AS AwayTeam
             FROM Team_Stats ts
-            INNER JOIN Teams t ON ts.Team_ID = t.Team_ID";
+            INNER JOIN Teams t ON ts.Team_ID = t.Team_ID
+            INNER JOIN Matches m ON ts.Match_ID = m.Match_ID
+            INNER JOIN Teams ht ON m.Home_Team_ID = ht.Team_ID
+            INNER JOIN Teams at ON m.Away_Team_ID = at.Team_ID";
 
         // ── Read Methods (Base Models) ──────────────────────────────────────────
 
@@ -42,25 +48,49 @@ namespace EPL_DBMS.DataAccess
             }
         }
 
-        // ── Read Methods (ViewModels with Names) ───────────────────────────────
+        // ── NEW: Statistical Standings (Aggregated Data) ───────────────────────
 
-        public static List<TeamStatViewModel> GetAllTeamStatsWithNames()
+        public static List<TeamStandingViewModel> GetLeagueStatisticalStandings()
         {
-            var list = new List<TeamStatViewModel>();
+            var list = new List<TeamStandingViewModel>();
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand(ViewQuery, con);
+                // We use GROUP BY to crunch the numbers for the whole season!
+                string query = @"
+                    SELECT 
+                        t.Team_Name,
+                        COUNT(ts.Match_ID) AS MatchesPlayed,
+                        CAST(ROUND(AVG(ts.Possession_Percentage), 2) AS DECIMAL(5,2)) AS AvgPossession,
+                        SUM(ts.Shots_On_Target) AS TotalShots,
+                        SUM(ts.Corners) AS TotalCorners,
+                        SUM(ts.Fouls) AS TotalFouls
+                    FROM Teams t
+                    INNER JOIN Team_Stats ts ON t.Team_ID = ts.Team_ID
+                    GROUP BY t.Team_Name
+                    ORDER BY AvgPossession DESC, TotalShots DESC"; // Rank by possession, then shots
+
+                var cmd = new SqlCommand(query, con);
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        list.Add(MapView(reader));
+                        list.Add(new TeamStandingViewModel
+                        {
+                            TeamName = reader["Team_Name"].ToString(),
+                            MatchesPlayed = (int)reader["MatchesPlayed"],
+                            AvgPossession = (decimal)reader["AvgPossession"],
+                            TotalShotsOnTarget = (int)reader["TotalShots"],
+                            TotalCorners = (int)reader["TotalCorners"],
+                            TotalFouls = (int)reader["TotalFouls"]
+                        });
                     }
                 }
             }
             return list;
         }
+
+        // ── Read Methods (ViewModels with Names) ───────────────────────────────
 
         public static List<TeamStatViewModel> GetStatsByTeamId(int teamId)
         {
@@ -68,7 +98,6 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                // FIX: Corrected query to use Team_ID and ViewQuery snippet
                 string query = ViewQuery + " WHERE ts.Team_ID = @tid";
                 var cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@tid", teamId);
@@ -136,7 +165,7 @@ namespace EPL_DBMS.DataAccess
             }
         }
 
-        // ── Private Mappers (DRY Principle) ─────────────────────────────────────
+        // ── Private Mappers ─────────────────────────────────────────────────────
 
         private static TeamStat Map(SqlDataReader r) => new TeamStat
         {
@@ -151,7 +180,6 @@ namespace EPL_DBMS.DataAccess
 
         private static TeamStatViewModel MapView(SqlDataReader r) => new TeamStatViewModel
         {
-            // Map the base properties
             TeamStatId = (int)r["Team_Stat_ID"],
             MatchId = (int)r["Match_ID"],
             TeamId = (int)r["Team_ID"],
@@ -160,8 +188,12 @@ namespace EPL_DBMS.DataAccess
             Corners = (int)r["Corners"],
             Fouls = (int)r["Fouls"],
 
-            // Map the ViewModel property
-            TeamName = r["Team_Name"].ToString()
+            TeamName = r["Team_Name"].ToString(),
+
+            // FORMAT: "Arsenal - Chelsea -- 14/10/2023"
+            MatchDisplay = r["Match_Date"] != DBNull.Value
+                ? $"{r["HomeTeam"]} - {r["AwayTeam"]} -- {Convert.ToDateTime(r["Match_Date"]).ToString("dd/MM/yyyy")}"
+                : $"{r["HomeTeam"]} - {r["AwayTeam"]} -- TBD"
         };
     }
 }

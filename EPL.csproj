@@ -126,6 +126,7 @@
     <Compile Include="Forms\TeamStatsForm.Designer.cs">
       <DependentUpon>TeamStatsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\UIHelper.cs" />
     <Compile Include="Models\Manager.cs" />
     <Compile Include="Models\ManagerPreviousTeam.cs" />
     <Compile Include="Models\Match.cs" />
@@ -142,8 +143,10 @@
     <Compile Include="ViewModels\ManagerPreviousTeamViewModel.cs" />
     <Compile Include="ViewModels\ManagerViewModel.cs" />
     <Compile Include="ViewModels\MatchViewModel.cs" />
+    <Compile Include="ViewModels\PlayerInjuryStatsViewModel.cs" />
     <Compile Include="ViewModels\PlayerInjuryViewModel.cs" />
     <Compile Include="ViewModels\PlayerStatViewModel.cs" />
+    <Compile Include="ViewModels\PlayerTopPerformerViewModel.cs" />
     <Compile Include="ViewModels\PlayerViewModel.cs" />
     <Compile Include="ViewModels\TeamStatViewModel.cs" />
     <Compile Include="ViewModels\TeamViewModel.cs" />
@@ -187,6 +190,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ViewModels\TeamStandingViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

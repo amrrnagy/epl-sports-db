@@ -110,6 +110,44 @@ namespace EPL_DBMS.DataAccess
             return list;
         }
 
+        // ── NEW: Statistical Injury Standings (Aggregated Data) ───────────────────
+        public static List<PlayerInjuryStatsViewModel> GetLeagueInjuryStatistics()
+        {
+            var list = new List<PlayerInjuryStatsViewModel>();
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+
+                // Group by Player Name to calculate totals
+                string query = @"
+            SELECT 
+                p.Player_Name,
+                COUNT(pi.Player_ID) AS TotalInjuries,
+                SUM(pi.Days_Out) AS TotalDaysOut,
+                MAX(pi.Injury_Date) AS LastInjuryDate
+            FROM Players p
+            INNER JOIN Player_Injuries pi ON p.Player_ID = pi.Player_ID
+            GROUP BY p.Player_Name
+            ORDER BY TotalDaysOut DESC"; // Rank by who has been injured the longest
+
+                var cmd = new SqlCommand(query, con);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new PlayerInjuryStatsViewModel
+                        {
+                            PlayerName = reader["Player_Name"].ToString(),
+                            TotalInjuries = (int)reader["TotalInjuries"],
+                            TotalDaysOut = (int)reader["TotalDaysOut"],
+                            LastInjuryDate = (DateTime)reader["LastInjuryDate"]
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
         // Used by the contextual (per-player) constructor — SQL WHERE filters by ID.
         public static List<PlayerInjuryViewModel> GetViewByPlayerId(int playerId)
         {
