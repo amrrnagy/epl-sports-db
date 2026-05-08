@@ -5,12 +5,11 @@ namespace EPL_DBMS.Utils
 {
     public static class DatabaseHelper
     {
-        private static readonly string _connectionString =
-            ConfigurationManager.ConnectionStrings["EPL"].ConnectionString;
-
         public static SqlConnection GetConnection()
         {
-            return new SqlConnection(_connectionString);
+            // It must use "EPL" to match your app.config
+            string connString = ConfigurationManager.ConnectionStrings["EPL"].ConnectionString;
+            return new SqlConnection(connString);
         }
     }
 }

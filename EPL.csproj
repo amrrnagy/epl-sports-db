@@ -195,6 +195,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Scripts\database.sql" />
+    <Content Include="Scripts\storedProcedures.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
