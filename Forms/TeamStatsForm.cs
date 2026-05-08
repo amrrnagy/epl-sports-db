@@ -34,25 +34,36 @@ namespace EPL_DBMS.Forms
 
                 if (_teamId.HasValue)
                 {
-                    // SPECIFIC TEAM (Uses the MatchDisplay format)
+                    // SPECIFIC TEAM (Shows the individual match logs)
                     dgv.DataSource = TeamStatRepository.GetStatsByTeamId(_teamId.Value);
 
-                    dgv.Columns["TeamStatId"].Visible = false;
-                    dgv.Columns["TeamId"].Visible = false;
-                    dgv.Columns["MatchId"].Visible = false; // Hide raw ID
-                    dgv.Columns["TeamName"].Visible = false; // Hidden because it's in the Form Title
+                    // 1. Hide unwanted raw IDs
+                    if (dgv.Columns["TeamStatId"] != null) dgv.Columns["TeamStatId"].Visible = false;
+                    if (dgv.Columns["TeamId"] != null) dgv.Columns["TeamId"].Visible = false;
+                    if (dgv.Columns["MatchId"] != null) dgv.Columns["MatchId"].Visible = false;
+                    if (dgv.Columns["TeamName"] != null) dgv.Columns["TeamName"].Visible = false; // Hidden because it's in the Form Title!
 
-                    dgv.Columns["MatchDisplay"].HeaderText = "Match Date & Opponent";
-                    dgv.Columns["MatchDisplay"].DisplayIndex = 0;
+                    // 2. Ensure MatchDisplay is visible and formatted nicely
+                    if (dgv.Columns["MatchDisplay"] != null)
+                    {
+                        dgv.Columns["MatchDisplay"].Visible = true; // Make sure it isn't hidden!
+                        dgv.Columns["MatchDisplay"].HeaderText = "Match Date & Opponent";
+                        dgv.Columns["MatchDisplay"].DisplayIndex = 0;    // Put it on the far left
+                    }
+
+                    // 3. Format the remaining statistical columns
                     dgv.Columns["PossessionPercentage"].HeaderText = "Possession %";
                     dgv.Columns["ShotsOnTarget"].HeaderText = "Shots on Target";
+                    dgv.Columns["Corners"].HeaderText = "Corners";
+                    dgv.Columns["Fouls"].HeaderText = "Fouls";
                 }
                 else
                 {
-                    // GLOBAL DASHBOARD (Uses the new Statistical Standings!)
+                    // GLOBAL DASHBOARD (Shows the Statistical Standings)
                     dgv.DataSource = TeamStatRepository.GetLeagueStatisticalStandings();
 
                     dgv.Columns["TeamName"].HeaderText = "Team";
+                    dgv.Columns["TeamName"].DisplayIndex = 0;
                     dgv.Columns["MatchesPlayed"].HeaderText = "Matches Played";
                     dgv.Columns["AvgPossession"].HeaderText = "Avg Possession %";
                     dgv.Columns["TotalShotsOnTarget"].HeaderText = "Total Shots on Target";

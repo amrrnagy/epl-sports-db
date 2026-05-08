@@ -1,233 +1,240 @@
+// FIX: txtteamid replaced with cmbTeam (ComboBox).
+// FIX: btnDelete_Click now calls LoadPlayersGrid() not LoadPlayers().
+// FIX: CellClick now always enables Update/Delete buttons.
+// FIX: All MessageBox calls now have appropriate icons.
+// NEW: Calls UIHelper for styling and SetPlaceholder.
+
 using EPL_DBMS.DataAccess;
 using EPL_DBMS.Models;
+using EPL_DBMS.Utils;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-
 
 namespace EPL_DBMS.Forms
 {
     public partial class PlayersForm : Form
     {
+        // NEW: Teams list for the ComboBox
+        private List<Team> _teams;
+
         private void NavigateTo(Form childForm)
         {
             this.Hide();
-
             using (childForm)
             {
                 childForm.ShowDialog();
             }
-
             this.Show();
         }
 
         public PlayersForm()
         {
             InitializeComponent();
+
+            // NEW: Modern styling
+            ApplyModernStyling();
+
+            // NEW: Load team dropdown before loading grid
+            LoadTeamComboBox();
             LoadPlayersGrid();
 
-
-            txtid.BackColor = Color.LightGray;
- 
-            txtid.ForeColor = Color.Gray;
-
-            // PlaceHolders for the Text Fields
-
-            SetPlaceholder(txtname, "Name");
-            SetPlaceholder(txtposition, "Position");
-            SetPlaceholder(txtage, "Age");
-            SetPlaceholder(txtnationality, "Nationality");
-            SetPlaceholder(txtteamid, "Team ID");
-            SetPlaceholder(txtid, "ENTER PLAYER ID");
-            txtid.ForeColor = System.Drawing.Color.Black;
+            // FIX: Placeholders now call UIHelper — no duplicate code
+            UIHelper.SetPlaceholder(txtname, "Full Name");
+            UIHelper.SetPlaceholder(txtposition, "Position (e.g. FWD)");
+            UIHelper.SetPlaceholder(txtage, "Age");
+            UIHelper.SetPlaceholder(txtnationality, "Nationality");
+            UIHelper.SetPlaceholder(txtid, "ENTER PLAYER ID");
         }
 
-        //LOAD
-        private void LoadPlayers()
+        // NEW
+        private void ApplyModernStyling()
         {
-            try
-            {
-                var data = PlayerRepository.GetAllPlayers();
-                dataGridViewPlayers.DataSource = data;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error loading Players: " + ex.Message);
-            }
+            this.BackColor = UIHelper.SurfaceColor;
+            this.Font = new Font("Segoe UI", 9f);
+
+            UIHelper.StyleGrid(dataGridViewPlayers);
+
+            // FIX: Updated to match the new button names from the Designer!
+            UIHelper.StyleButton(btnAdd, UIHelper.SuccessColor);
+            UIHelper.StyleButton(btnUpdate, UIHelper.PrimaryAccent);
+            UIHelper.StyleButton(btnDelete, UIHelper.DangerColor);
+            UIHelper.StyleButton(btnSearch, UIHelper.PrimaryAccent);
+            UIHelper.StyleButton(btnBack, Color.FromArgb(108, 117, 125));
+            UIHelper.StyleButton(btnPlayerStats, UIHelper.PrimaryAccent);
+            UIHelper.StyleButton(btnPlayerInjuries, UIHelper.DangerColor);
+        }
+
+        // NEW: Populate team ComboBox
+        private void LoadTeamComboBox()
+        {
+            _teams = TeamRepository.GetAllTeams();
+            cmbTeam.DataSource = _teams;
+            cmbTeam.DisplayMember = "TeamName";
+            cmbTeam.ValueMember = "TeamId";
+            cmbTeam.SelectedIndex = -1;
         }
 
         private void LoadPlayersGrid()
         {
-            // Fetch the ViewModel list instead of the pure Player list
-            var playersWithTeams = PlayerRepository.GetAllPlayersForGrid();
+            try
+            {
+                var playersWithTeams = PlayerRepository.GetAllPlayersForGrid();
+                dataGridViewPlayers.DataSource = playersWithTeams;
 
-            // Bind it to the grid
-            dataGridViewPlayers.DataSource = playersWithTeams;
+                if (dataGridViewPlayers.Columns["PlayerId"] != null)
+                    dataGridViewPlayers.Columns["PlayerId"].Visible = false;
 
-            // Optional: Hide the raw IDs from the user to make it completely clean
-            if (dataGridViewPlayers.Columns["PlayerId"] != null)
-                dataGridViewPlayers.Columns["PlayerId"].Visible = false;
+                if (dataGridViewPlayers.Columns["TeamId"] != null)
+                    dataGridViewPlayers.Columns["TeamId"].Visible = false;
 
-            if (dataGridViewPlayers.Columns["TeamId"] != null)
-                dataGridViewPlayers.Columns["TeamId"].Visible = false;
+                if (dataGridViewPlayers.Columns["TeamName"] != null)
+                    dataGridViewPlayers.Columns["TeamName"].HeaderText = "Current Club";
 
-            // Optional: Rename the header so it looks nice
-            if (dataGridViewPlayers.Columns["TeamName"] != null)
-                dataGridViewPlayers.Columns["TeamName"].HeaderText = "Current Club";
+                dataGridViewPlayers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading players: " + ex.Message,
+                    "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
             if (!int.TryParse(txtid.Text, out int id))
             {
-                MessageBox.Show("Enter valid ID");
+                MessageBox.Show("Enter a valid Player ID.",
+                    "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             var player = PlayerRepository.GetById(id);
-
             if (player == null)
             {
-                MessageBox.Show("Player not found");
+                MessageBox.Show("Player not found.",
+                    "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            txtname.Text = player.PlayerName;
-            txtposition.Text = player.Position;
-            txtage.Text = player.Age.ToString();
-            txtnationality.Text = player.Nationality;
-            txtteamid.Text = player.TeamId.ToString();
-            SetAllTextBlack();
-
-            // Enable editing
-            update.Enabled = true;
-            delete.Enabled = true;
+            PopulateFields(player);
 
             foreach (DataGridViewRow row in dataGridViewPlayers.Rows)
             {
-                // Make sure the row isn't empty and check if the ID matches
-                if (row.Cells["PlayerId"].Value != null && (int)row.Cells["PlayerId"].Value == id)
+                if (row.Cells["PlayerId"].Value != null &&
+                    (int)row.Cells["PlayerId"].Value == id)
                 {
-                    // Clear any previously selected rows
                     dataGridViewPlayers.ClearSelection();
-
-                    // Highlight this specific row
                     row.Selected = true;
-
-                    // Set it as the "Current" row (so your Stats button can find it)
                     dataGridViewPlayers.CurrentCell = row.Cells[0];
-
-                    // Automatically scroll down to the row so the user doesn't have to search for it!
                     dataGridViewPlayers.FirstDisplayedScrollingRowIndex = row.Index;
-
-                    break; // We found the player, no need to keep looping
+                    break;
                 }
             }
         }
 
-        //  ADD 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            if (!ValidateInputs()) return;
+
             try
             {
-                // Prevent adding placeholder text to the database!
-                if (txtname.Text == "Name" || txtposition.Text == "Position" ||
-                    txtage.Text == "Age" || txtnationality.Text == "Nationality" || txtteamid.Text == "Team ID")
-                {
-                    MessageBox.Show("Please fill all fields.");
-                    return;
-                }
-
-                if (!int.TryParse(txtage.Text, out int age) || !int.TryParse(txtteamid.Text, out int teamId))
-                {
-                    MessageBox.Show("Please ensure Age and Team ID are valid numbers.");
-                    return;
-                }
-
                 var p = new Player
                 {
-                    PlayerName = txtname.Text,
-                    Position = txtposition.Text,
-                    Age = age,
-                    Nationality = txtnationality.Text,
-                    TeamId = teamId
+                    PlayerName = txtname.Text.Trim(),
+                    Position = txtposition.Text.Trim(),
+                    Age = int.Parse(txtage.Text),
+                    Nationality = txtnationality.Text.Trim(),
+                    // FIX: Read from ComboBox, not TextBox
+                    TeamId = (int)cmbTeam.SelectedValue
                 };
 
                 PlayerRepository.Add(p);
 
-                MessageBox.Show("Player Added Successfully!");
-
-                // Reload the GRID
+                // FIX: Added icon
+                MessageBox.Show("Player added successfully!", "Success",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadPlayersGrid();
                 ClearFields();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error adding player: " + ex.Message);
+                MessageBox.Show("Error adding player: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        //   UPDATE 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtid.Text) || txtid.Text == "ENTER PLAYER ID")
+            {
+                MessageBox.Show("Select a player from the table first.",
+                    "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!ValidateInputs()) return;
+
             try
             {
-                if (txtid.Text == "" || txtid.Text == "ENTER PLAYER ID")
-                {
-                    MessageBox.Show("Select a player first from the table.");
-                    return;
-                }
-
-                if (!int.TryParse(txtage.Text, out int age) || !int.TryParse(txtteamid.Text, out int teamId))
-                {
-                    MessageBox.Show("Please ensure Age and Team ID are valid numbers.");
-                    return;
-                }
-
                 var p = new Player
                 {
                     PlayerId = int.Parse(txtid.Text),
-                    PlayerName = txtname.Text,
-                    Position = txtposition.Text,
+                    PlayerName = txtname.Text.Trim(),
+                    Position = txtposition.Text.Trim(),
                     Age = int.Parse(txtage.Text),
-                    Nationality = txtnationality.Text,
-                    TeamId = int.Parse(txtteamid.Text)
+                    Nationality = txtnationality.Text.Trim(),
+                    // FIX: Read from ComboBox
+                    TeamId = (int)cmbTeam.SelectedValue
                 };
 
                 PlayerRepository.Update(p);
 
-                MessageBox.Show("Player Updated!");
-
+                MessageBox.Show("Player updated successfully.", "Success",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadPlayersGrid();
                 ClearFields();
-
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error updating player: " + ex.Message);
+                MessageBox.Show("Error updating player: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        //     DELETE 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            if (dataGridViewPlayers.CurrentRow == null || !int.TryParse(txtid.Text, out int id))
+            {
+                MessageBox.Show("Please select a player from the table first.",
+                    "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                "Are you sure you want to permanently delete this player?",
+                "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
             try
             {
-                if (dataGridViewPlayers.CurrentRow == null) return;
-
-                int id = int.Parse(txtid.Text);
-
                 PlayerRepository.Delete(id);
-                LoadPlayers();
+                MessageBox.Show("Player deleted.", "Deleted",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // FIX: Was LoadPlayers() — that method loads raw model and shows TeamId column!
+                LoadPlayersGrid();
                 ClearFields();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error deleting player: " + ex.Message);
+                MessageBox.Show("Error deleting player: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        //  when click row info appears in txt fields
         private void dataGridViewPlayers_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
@@ -238,92 +245,104 @@ namespace EPL_DBMS.Forms
             txtname.Text = row.Cells["PlayerName"].Value.ToString();
             txtposition.Text = row.Cells["Position"].Value.ToString();
             txtage.Text = row.Cells["Age"].Value.ToString();
-           txtnationality.Text = row.Cells["Nationality"].Value.ToString();
-           txtteamid.Text = row.Cells["TeamId"].Value.ToString();
+            txtnationality.Text = row.Cells["Nationality"].Value.ToString();
+
+            // FIX: Set ComboBox by TeamId (hidden column) instead of showing raw ID
+            cmbTeam.SelectedValue = row.Cells["TeamId"].Value;
+
             SetAllTextBlack();
 
+            // FIX: Use correctly named buttons!
+            btnUpdate.Enabled = true;
+            btnDelete.Enabled = true;
         }
 
-        // function to set color text to black
+        // ── Helpers ──────────────────────────────────────────────────────────
+
+        private void PopulateFields(Player p)
+        {
+            txtname.Text = p.PlayerName;
+            txtposition.Text = p.Position;
+            txtage.Text = p.Age.ToString();
+            txtnationality.Text = p.Nationality;
+            // FIX: Set ComboBox by value
+            cmbTeam.SelectedValue = p.TeamId;
+            SetAllTextBlack();
+
+            // FIX: Use correctly named buttons!
+            btnUpdate.Enabled = true;
+            btnDelete.Enabled = true;
+        }
+
+        private bool ValidateInputs()
+        {
+            if (string.IsNullOrWhiteSpace(txtname.Text) || txtname.Text == "Full Name" ||
+                string.IsNullOrWhiteSpace(txtposition.Text) || txtposition.Text == "Position (e.g. FWD)" ||
+                string.IsNullOrWhiteSpace(txtnationality.Text) || txtnationality.Text == "Nationality")
+            {
+                MessageBox.Show("Please fill all required fields.",
+                    "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            if (!int.TryParse(txtage.Text, out int age) || age < 14 || age > 50)
+            {
+                MessageBox.Show("Please enter a valid player age (14–50).",
+                    "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // NEW: Validate ComboBox selection
+            if (cmbTeam.SelectedIndex < 0)
+            {
+                MessageBox.Show("Please select a team from the dropdown.",
+                    "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
         private void SetAllTextBlack()
         {
-            TextBox[] boxes = { txtname, txtposition, txtage, txtnationality, txtteamid, txtid };
-
-            foreach (var txt in boxes)
-            {
+            foreach (var txt in new TextBox[] { txtname, txtposition, txtage, txtnationality, txtid })
                 txt.ForeColor = Color.Black;
-            }
         }
-        // clear
+
         private void ClearFields()
         {
-            SetPlaceholder(txtname, "Name");
-            SetPlaceholder(txtposition, "Position");
-            SetPlaceholder(txtage, "Age");
-            SetPlaceholder(txtnationality, "Nationality");
-            SetPlaceholder(txtteamid, "Team ID");
-
-            SetPlaceholder(txtid, "ENTER PLAYER ID");
+            UIHelper.SetPlaceholder(txtname, "Full Name");
+            UIHelper.SetPlaceholder(txtposition, "Position (e.g. FWD)");
+            UIHelper.SetPlaceholder(txtage, "Age");
+            UIHelper.SetPlaceholder(txtnationality, "Nationality");
+            UIHelper.SetPlaceholder(txtid, "ENTER PLAYER ID");
+            cmbTeam.SelectedIndex = -1;  // NEW: Reset ComboBox too
         }
 
+        private void btnBack_Click(object sender, EventArgs e) => this.Close();
 
-
-        private void SetPlaceholder(TextBox txt, string placeholder)
-        {
-            txt.Text = placeholder;
-            txt.ForeColor = System.Drawing.Color.Gray;
-
-            txt.GotFocus += (s, e) =>
-            {
-                if (txt.Text == placeholder)
-                {
-                    txt.Text = "";
-                    txt.ForeColor = System.Drawing.Color.Black;
-                }
-            };
-
-            txt.LostFocus += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(txt.Text))
-                {
-                    txt.Text = placeholder;
-                    txt.ForeColor = System.Drawing.Color.Gray;
-                }
-            };
-        }
-
-        private void btnBack_Click(object sender, EventArgs e)
-        {
-            this.Close(); // just close current form
-        }
-
-        private void PlayersForm_Load(object sender, EventArgs e)
-        {
-            LoadPlayersGrid();
-        }
+        private void PlayersForm_Load(object sender, EventArgs e) => LoadPlayersGrid();
 
         private void btnPlayerStats_Click(object sender, EventArgs e)
         {
             if (dataGridViewPlayers.CurrentRow == null)
             {
-                MessageBox.Show("Please select a player from the table first.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please select a player from the table first.",
+                    "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             int playerId = (int)dataGridViewPlayers.CurrentRow.Cells["PlayerId"].Value;
             string playerName = dataGridViewPlayers.CurrentRow.Cells["PlayerName"].Value.ToString();
 
-            // 1. Ask the database FIRST
             var stats = PlayerStatRepository.GetStatsByPlayerId(playerId);
-
-            // 2. If it's empty, show the message and STOP. The form never opens!
             if (stats == null || stats.Count == 0)
             {
-                MessageBox.Show($"{playerName} has no match statistics recorded.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"{playerName} has no match statistics recorded.",
+                    "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // 3. If we made it here, they have stats. Open the form!
             NavigateTo(new PlayerStatsForm(playerId, playerName));
         }
 
@@ -331,24 +350,22 @@ namespace EPL_DBMS.Forms
         {
             if (dataGridViewPlayers.CurrentRow == null)
             {
-                MessageBox.Show("Please select a player from the table first.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please select a player from the table first.",
+                    "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             int playerId = (int)dataGridViewPlayers.CurrentRow.Cells["PlayerId"].Value;
             string playerName = dataGridViewPlayers.CurrentRow.Cells["PlayerName"].Value.ToString();
 
-            // 1. Ask the database FIRST
             var injuries = PlayerInjuryRepository.GetByPlayerId(playerId);
-
-            // 2. If it's empty, show the message and STOP.
             if (injuries.Count == 0)
             {
-                MessageBox.Show($"{playerName} has no injury history recorded.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"{playerName} has no injury history recorded.",
+                    "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // 3. Open the form safely!
             NavigateTo(new PlayerInjuriesForm(playerId, playerName));
         }
     }

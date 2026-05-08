@@ -93,9 +93,14 @@ namespace EPL_DBMS.DataAccess
         // No LINQ. No in-memory filtering.
 
         private static readonly string ViewQuery = @"
-            SELECT ps.*, p.Player_Name
+            SELECT ps.*, p.Player_Name, m.Match_Date,
+                   ht.Team_Name AS HomeTeam,
+                   at.Team_Name AS AwayTeam
             FROM   Player_Stats ps
-            INNER  JOIN Players p ON ps.Player_ID = p.Player_ID";
+            INNER  JOIN Players p ON ps.Player_ID = p.Player_ID
+            INNER  JOIN Matches m ON ps.Match_ID = m.Match_ID
+            INNER  JOIN Teams ht ON m.Home_Team_ID = ht.Team_ID
+            INNER  JOIN Teams at ON m.Away_Team_ID = at.Team_ID";
 
         // Used by the default (league-wide) constructor — returns ALL stats.
         public static List<PlayerStatViewModel> GetAllPlayerStatsForGrid()
@@ -190,17 +195,22 @@ namespace EPL_DBMS.DataAccess
         private static PlayerStatViewModel MapView(SqlDataReader r) => new PlayerStatViewModel
         {
             // Base Model properties
-            PlayerStatId  = (int)r["Player_Stat_ID"],
-            MatchId       = (int)r["Match_ID"],
-            PlayerId      = (int)r["Player_ID"],
-            GoalsScored   = (int)r["Goals_Scored"],
-            Assists       = (int)r["Assists"],
-            YellowCards   = (int)r["Yellow_Cards"],
-            RedCards      = (int)r["Red_Cards"],
+            PlayerStatId = (int)r["Player_Stat_ID"],
+            MatchId = (int)r["Match_ID"],
+            PlayerId = (int)r["Player_ID"],
+            GoalsScored = (int)r["Goals_Scored"],
+            Assists = (int)r["Assists"],
+            YellowCards = (int)r["Yellow_Cards"],
+            RedCards = (int)r["Red_Cards"],
             MinutesPlayed = (int)r["Minutes_Played"],
 
             // ViewModel property
-            PlayerName    = r["Player_Name"].ToString()
+            PlayerName = r["Player_Name"].ToString(),
+
+            // NEW: Format the string exactly like we did for the Teams!
+            MatchDisplay = r["Match_Date"] != System.DBNull.Value
+                ? $"{r["HomeTeam"]} - {r["AwayTeam"]} -- {System.Convert.ToDateTime(r["Match_Date"]).ToString("dd/MM/yyyy")}"
+                : $"{r["HomeTeam"]} - {r["AwayTeam"]} -- TBD"
         };
     }
 }
