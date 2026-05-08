@@ -73,6 +73,29 @@ namespace EPL_DBMS.DataAccess
             }
         }
 
+        public static List<string> GetAllPositions()
+        {
+            var list = new List<string>();
+
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+
+                // Select distinct positions from the Players table
+                var cmd = new SqlCommand("SELECT DISTINCT Position FROM Players WHERE Position IS NOT NULL", con);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        // Extract the string value from the reader and add it to the list
+                        list.Add(reader["Position"].ToString());
+                    }
+                }
+            }
+            return list;
+        }
+
         public static void Add(Player p)
         {
             using (var con = DatabaseHelper.GetConnection())
