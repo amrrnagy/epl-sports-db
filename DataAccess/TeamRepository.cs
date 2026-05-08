@@ -2,11 +2,14 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
+using EPL_DBMS.ViewModels;
 
 namespace EPL_DBMS.DataAccess
 {
     public static class TeamRepository
     {
+        // ── Existing methods (unchanged) ────────────────────────────────────────
+
         public static List<Team> GetAllTeams()
         {
             var list = new List<Team>();
@@ -82,10 +85,51 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("Select Count(*) from Teams", con);
+                var cmd = new SqlCommand("SELECT COUNT(*) FROM Teams", con);
                 return (int)cmd.ExecuteScalar();
             }
+        }
+
+        // ── NEW: ViewModel method for the DataGridView ───────────────────────────
+        // Uses an INNER JOIN to resolve Stadium_ID -> Stadium_Name.
+        // No LINQ. No in-memory filtering.
+
+        public static List<TeamViewModel> GetAllTeamsForGrid()
+        {
+            var list = new List<TeamViewModel>();
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+
+                string query = @"
+                    SELECT t.*, s.Stadium_Name
+                    FROM   Teams t
+                    INNER  JOIN Stadiums s ON t.Stadium_ID = s.Stadium_ID";
+
+                var cmd = new SqlCommand(query, con);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new TeamViewModel
+                        {
+                            // Base Model properties
+                            TeamId       = (int)reader["Team_ID"],
+                            TeamName     = reader["Team_Name"].ToString(),
+                            YearFounded  = (int)reader["Year_Founded"],
+                            HomeKitColor = reader["Home_Kit_Color"].ToString(),
+                            StadiumId    = (int)reader["Stadium_ID"],
+
+                            // ViewModel property
+                            StadiumName  = reader["Stadium_Name"].ToString()
+                        });
+                    }
+                }
             }
+            return list;
+        }
+
+        // ── Private mapper ───────────────────────────────────────────────────────
 
         private static Team Map(SqlDataReader r) => new Team
         {

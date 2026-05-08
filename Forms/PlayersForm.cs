@@ -9,12 +9,24 @@ namespace EPL_DBMS.Forms
 {
     public partial class PlayersForm : Form
     {
+        private void NavigateTo(Form childForm)
+        {
+            this.Hide();
+
+            using (childForm)
+            {
+                childForm.ShowDialog();
+            }
+
+            this.Show();
+        }
+
         public PlayersForm()
         {
             InitializeComponent();
-            LoadPlayers();
+            LoadPlayersGrid();
 
-         
+
             txtid.BackColor = Color.LightGray;
  
             txtid.ForeColor = Color.Gray;
@@ -44,6 +56,26 @@ namespace EPL_DBMS.Forms
             }
         }
 
+        private void LoadPlayersGrid()
+        {
+            // Fetch the ViewModel list instead of the pure Player list
+            var playersWithTeams = PlayerRepository.GetAllPlayersForGrid();
+
+            // Bind it to the grid
+            dataGridViewPlayers.DataSource = playersWithTeams;
+
+            // Optional: Hide the raw IDs from the user to make it completely clean
+            if (dataGridViewPlayers.Columns["PlayerId"] != null)
+                dataGridViewPlayers.Columns["PlayerId"].Visible = false;
+
+            if (dataGridViewPlayers.Columns["TeamId"] != null)
+                dataGridViewPlayers.Columns["TeamId"].Visible = false;
+
+            // Optional: Rename the header so it looks nice
+            if (dataGridViewPlayers.Columns["TeamName"] != null)
+                dataGridViewPlayers.Columns["TeamName"].HeaderText = "Current Club";
+        }
+
         private void btnSearch_Click(object sender, EventArgs e)
         {
             if (!int.TryParse(txtid.Text, out int id))
@@ -70,6 +102,27 @@ namespace EPL_DBMS.Forms
             // Enable editing
             update.Enabled = true;
             delete.Enabled = true;
+
+            foreach (DataGridViewRow row in dataGridViewPlayers.Rows)
+            {
+                // Make sure the row isn't empty and check if the ID matches
+                if (row.Cells["PlayerId"].Value != null && (int)row.Cells["PlayerId"].Value == id)
+                {
+                    // Clear any previously selected rows
+                    dataGridViewPlayers.ClearSelection();
+
+                    // Highlight this specific row
+                    row.Selected = true;
+
+                    // Set it as the "Current" row (so your Stats button can find it)
+                    dataGridViewPlayers.CurrentCell = row.Cells[0];
+
+                    // Automatically scroll down to the row so the user doesn't have to search for it!
+                    dataGridViewPlayers.FirstDisplayedScrollingRowIndex = row.Index;
+
+                    break; // We found the player, no need to keep looping
+                }
+            }
         }
 
         //  ADD 
@@ -77,11 +130,17 @@ namespace EPL_DBMS.Forms
         {
             try
             {
-             
-                if (txtname.Text == "" || txtposition.Text == "" ||
-                    txtage.Text == "" || txtnationality.Text == "" || txtteamid.Text == "")
+                // Prevent adding placeholder text to the database!
+                if (txtname.Text == "Name" || txtposition.Text == "Position" ||
+                    txtage.Text == "Age" || txtnationality.Text == "Nationality" || txtteamid.Text == "Team ID")
                 {
-                    MessageBox.Show("Please fill all fields");
+                    MessageBox.Show("Please fill all fields.");
+                    return;
+                }
+
+                if (!int.TryParse(txtage.Text, out int age) || !int.TryParse(txtteamid.Text, out int teamId))
+                {
+                    MessageBox.Show("Please ensure Age and Team ID are valid numbers.");
                     return;
                 }
 
@@ -89,18 +148,18 @@ namespace EPL_DBMS.Forms
                 {
                     PlayerName = txtname.Text,
                     Position = txtposition.Text,
-                    Age = int.Parse(txtage.Text),
+                    Age = age,
                     Nationality = txtnationality.Text,
-                    TeamId = int.Parse(txtteamid.Text)
+                    TeamId = teamId
                 };
 
                 PlayerRepository.Add(p);
 
                 MessageBox.Show("Player Added Successfully!");
 
-                LoadPlayers();    
-                ClearFields();    
-
+                // Reload the GRID
+                LoadPlayersGrid();
+                ClearFields();
             }
             catch (Exception ex)
             {
@@ -113,15 +172,21 @@ namespace EPL_DBMS.Forms
         {
             try
             {
-                if (txtid.Text == "" || txtid.Text == "Auto Generated")
+                if (txtid.Text == "" || txtid.Text == "ENTER PLAYER ID")
                 {
-                    MessageBox.Show("Select a player first");
+                    MessageBox.Show("Select a player first from the table.");
+                    return;
+                }
+
+                if (!int.TryParse(txtage.Text, out int age) || !int.TryParse(txtteamid.Text, out int teamId))
+                {
+                    MessageBox.Show("Please ensure Age and Team ID are valid numbers.");
                     return;
                 }
 
                 var p = new Player
                 {
-           
+                    PlayerId = int.Parse(txtid.Text),
                     PlayerName = txtname.Text,
                     Position = txtposition.Text,
                     Age = int.Parse(txtage.Text),
@@ -133,7 +198,7 @@ namespace EPL_DBMS.Forms
 
                 MessageBox.Show("Player Updated!");
 
-                LoadPlayers();
+                LoadPlayersGrid();
                 ClearFields();
 
             }
@@ -234,12 +299,57 @@ namespace EPL_DBMS.Forms
 
         private void PlayersForm_Load(object sender, EventArgs e)
         {
-            LoadPlayers();
+            LoadPlayersGrid();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnPlayerStats_Click(object sender, EventArgs e)
         {
+            if (dataGridViewPlayers.CurrentRow == null)
+            {
+                MessageBox.Show("Please select a player from the table first.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
+            int playerId = (int)dataGridViewPlayers.CurrentRow.Cells["PlayerId"].Value;
+            string playerName = dataGridViewPlayers.CurrentRow.Cells["PlayerName"].Value.ToString();
+
+            // 1. Ask the database FIRST
+            var stats = PlayerStatRepository.GetStatsByPlayerId(playerId);
+
+            // 2. If it's empty, show the message and STOP. The form never opens!
+            if (stats == null || stats.Count == 0)
+            {
+                MessageBox.Show($"{playerName} has no match statistics recorded.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // 3. If we made it here, they have stats. Open the form!
+            NavigateTo(new PlayerStatsForm(playerId, playerName));
+        }
+
+        private void btnPlayerInjuries_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewPlayers.CurrentRow == null)
+            {
+                MessageBox.Show("Please select a player from the table first.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            int playerId = (int)dataGridViewPlayers.CurrentRow.Cells["PlayerId"].Value;
+            string playerName = dataGridViewPlayers.CurrentRow.Cells["PlayerName"].Value.ToString();
+
+            // 1. Ask the database FIRST
+            var injuries = PlayerInjuryRepository.GetByPlayerId(playerId);
+
+            // 2. If it's empty, show the message and STOP.
+            if (injuries.Count == 0)
+            {
+                MessageBox.Show($"{playerName} has no injury history recorded.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // 3. Open the form safely!
+            NavigateTo(new PlayerInjuriesForm(playerId, playerName));
         }
     }
 }

@@ -142,9 +142,12 @@
     <Compile Include="ViewModels\ManagerPreviousTeamViewModel.cs" />
     <Compile Include="ViewModels\ManagerViewModel.cs" />
     <Compile Include="ViewModels\MatchViewModel.cs" />
+    <Compile Include="ViewModels\PlayerInjuryStatsViewModel.cs" />
     <Compile Include="ViewModels\PlayerInjuryViewModel.cs" />
     <Compile Include="ViewModels\PlayerStatViewModel.cs" />
+    <Compile Include="ViewModels\PlayerTopPerformerViewModel.cs" />
     <Compile Include="ViewModels\PlayerViewModel.cs" />
+    <Compile Include="ViewModels\TeamStatViewModel.cs" />
     <Compile Include="ViewModels\TeamViewModel.cs" />
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -152,11 +155,17 @@
     <EmbeddedResource Include="Forms\ManagerPreviousTeamsForm.resx">
       <DependentUpon>ManagerPreviousTeamsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MatchesForm.resx">
-      <DependentUpon>MatchesForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ManagersForm.resx">
+      <DependentUpon>ManagersForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\PlayersForm.resx">
       <DependentUpon>PlayersForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\RefereesForm.resx">
+      <DependentUpon>RefereesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\StadiumsForm.resx">
+      <DependentUpon>StadiumsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\TeamsForm.resx">
       <DependentUpon>TeamsForm.cs</DependentUpon>
@@ -180,6 +189,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ViewModels\TeamStandingViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

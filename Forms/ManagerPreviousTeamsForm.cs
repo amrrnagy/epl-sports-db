@@ -8,6 +8,11 @@ namespace EPL_DBMS.Forms
     {
         private readonly int _managerId;
 
+        public ManagerPreviousTeamsForm()
+        {
+            InitializeComponent();
+        }
+
         public ManagerPreviousTeamsForm(int managerId, string managerName)
         {
             InitializeComponent();
@@ -29,7 +34,7 @@ namespace EPL_DBMS.Forms
         {
             try
             {
-                var history = ManagerPreviousTeamRepository.GetHistoryWithNamesByManager(_managerId);
+                var history = ManagerPreviousTeamRepository.GetViewByManagerId(_managerId);
 
                 if (history.Count == 0)
                 {
@@ -46,7 +51,7 @@ namespace EPL_DBMS.Forms
                 dataGridViewManagerHistory.Columns["ManagerId"].Visible = false;
                 dataGridViewManagerHistory.Columns["PreviousTeamId"].Visible = false;
 
-                dataGridViewManagerHistory.Columns["TeamName"].HeaderText = "Previous Club";
+                dataGridViewManagerHistory.Columns["PreviousTeamName"].HeaderText = "Previous Club";
 
                 // --- NEW DYNAMIC FORM SIZING ---
                 // 1. Tell columns to size themselves to fit their text content

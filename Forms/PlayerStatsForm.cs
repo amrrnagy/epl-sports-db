@@ -6,28 +6,64 @@ namespace EPL_DBMS.Forms
 {
     public partial class PlayerStatsForm : Form
     {
+        private readonly int? _playerId;
+
+        // 1. GLOBAL CONSTRUCTOR (Called from Main Form)
         public PlayerStatsForm()
         {
             InitializeComponent();
-            LoadPlayerStats();
+            _playerId = null;
+            this.Text = "League Top Performers";
+            this.Load += Form_Load;
         }
 
-        private void LoadPlayerStats()
+        // 2. SPECIFIC CONSTRUCTOR (Called from Players Form)
+        public PlayerStatsForm(int playerId, string playerName)
+        {
+            InitializeComponent();
+            _playerId = playerId;
+            this.Text = $"{playerName} - Match Statistics";
+            this.Load += Form_Load;
+        }
+
+        private void Form_Load(object sender, EventArgs e)
         {
             try
             {
-                var data = PlayerStatRepository.GetAllPlayerStats();
-                var dgv  = dataGridViewPlayerStats;
-                dgv.DataSource = data;
-                dgv.Columns["PlayerStatId"].HeaderText = "ID";
-                dgv.Columns["MatchId"].HeaderText = "Match ID";
-                dgv.Columns["PlayerId"].HeaderText = "Player ID";
-                dgv.Columns["GoalsScored"].HeaderText = "Goals";
-                dgv.Columns["Assists"].HeaderText = "Assists";
-                dgv.Columns["YellowCards"].HeaderText = "Yellow Cards";
-                dgv.Columns["RedCards"].HeaderText = "Red Cards";
-                dgv.Columns["MinutesPlayed"].HeaderText = "Minutes Played";
-                dgv.AutoResizeColumns();
+                var dgv = dataGridViewPlayerStats;
+
+                if (_playerId.HasValue)
+                {
+                    // SPECIFIC PLAYER (Shows the raw individual match log)
+                    dgv.DataSource = PlayerStatRepository.GetStatsByPlayerId(_playerId.Value);
+
+                    dgv.Columns["PlayerStatId"].Visible = false;
+                    dgv.Columns["PlayerId"].Visible = false;
+                    dgv.Columns["PlayerName"].Visible = false; // Redundant with window title
+
+                    dgv.Columns["MatchId"].HeaderText = "Match ID";
+                    dgv.Columns["GoalsScored"].HeaderText = "Goals";
+                    dgv.Columns["Assists"].HeaderText = "Assists";
+                    dgv.Columns["YellowCards"].HeaderText = "Yellow Cards";
+                    dgv.Columns["RedCards"].HeaderText = "Red Cards";
+                    dgv.Columns["MinutesPlayed"].HeaderText = "Minutes Played";
+                }
+                else
+                {
+                    // GLOBAL DASHBOARD (Uses the new Statistical Top Performers Aggregation!)
+                    dgv.DataSource = PlayerStatRepository.GetLeagueTopPerformers();
+
+                    dgv.Columns["PlayerName"].HeaderText = "Player";
+                    dgv.Columns["PlayerName"].DisplayIndex = 0;
+
+                    dgv.Columns["TotalGoals"].HeaderText = "Total Goals";
+                    dgv.Columns["TotalAssists"].HeaderText = "Total Assists";
+                    dgv.Columns["TotalYellowCards"].HeaderText = "Total Yellow Cards";
+                    dgv.Columns["TotalRedCards"].HeaderText = "Total Red Cards";
+                    dgv.Columns["TotalMinutes"].HeaderText = "Total Minutes";
+                }
+
+                dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }
             catch (Exception ex)
             {
