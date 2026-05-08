@@ -124,23 +124,6 @@ namespace EPL_DBMS.Forms
             // 
             this.ClientSize = new System.Drawing.Size(760, 617);
             this.Controls.Add(this.txtname);
-            // dataGridViewStadiums
-            // 
-            this.dataGridViewStadiums.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewStadiums.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewStadiums.Location = new System.Drawing.Point(0, 0);
-            this.dataGridViewStadiums.Name = "dataGridViewStadiums";
-            this.dataGridViewStadiums.ReadOnly = true;
-            this.dataGridViewStadiums.RowHeadersWidth = 51;
-            this.dataGridViewStadiums.RowTemplate.Height = 24;
-            this.dataGridViewStadiums.Size = new System.Drawing.Size(960, 520);
-            this.dataGridViewStadiums.TabIndex = 0;
-            // 
-            // StadiumsForm
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(960, 520);
             this.Controls.Add(this.dataGridViewStadiums);
             this.Controls.Add(this.add);
             this.Controls.Add(this.update);
