@@ -30,7 +30,7 @@ namespace EPL_DBMS.Forms
             this.txtname.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtname.Location = new System.Drawing.Point(256, 70);
             this.txtname.Name = "txtname";
-            this.txtname.Size = new System.Drawing.Size(93, 20);
+            this.txtname.Size = new System.Drawing.Size(93, 22);
             this.txtname.TabIndex = 17;
             // 
             // txtnationality
@@ -38,7 +38,7 @@ namespace EPL_DBMS.Forms
             this.txtnationality.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtnationality.Location = new System.Drawing.Point(411, 70);
             this.txtnationality.Name = "txtnationality";
-            this.txtnationality.Size = new System.Drawing.Size(93, 20);
+            this.txtnationality.Size = new System.Drawing.Size(93, 22);
             this.txtnationality.TabIndex = 18;
             // 
             // txtid
@@ -97,8 +97,8 @@ namespace EPL_DBMS.Forms
             // 
             // dataGridViewReferees
             // 
-            this.dataGridViewReferees.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.dataGridViewReferees.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewReferees.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewReferees.BackgroundColor = System.Drawing.SystemColors.ActiveBorder;
@@ -108,13 +108,13 @@ namespace EPL_DBMS.Forms
             this.dataGridViewReferees.ReadOnly = true;
             this.dataGridViewReferees.RowHeadersWidth = 51;
             this.dataGridViewReferees.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewReferees.Size = new System.Drawing.Size(738, 404);
+            this.dataGridViewReferees.Size = new System.Drawing.Size(738, 259);
             this.dataGridViewReferees.TabIndex = 28;
             this.dataGridViewReferees.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewReferees_CellClick);
             // 
             // RefereesForm
             // 
-            this.ClientSize = new System.Drawing.Size(760, 617);
+            this.ClientSize = new System.Drawing.Size(760, 472);
             this.Controls.Add(this.txtnationality);
             this.Controls.Add(this.txtname);
             this.Controls.Add(this.dataGridViewReferees);
