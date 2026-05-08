@@ -1,53 +1,79 @@
+// FIX: btnTeamStats_Click was opening PlayerStatsForm — now opens TeamStatsForm.
+// FIX: Duplicate block in txtid_TextChanged removed.
+// FIX: Success MessageBoxes added to Add/Update/Delete with correct icons.
+// FIX: Validation added before int.Parse calls in btnAdd_Click.
+// NEW: Calls UIHelper for styling and SetPlaceholder.
+// FIX: Wrong "player" text in btnTeamStats_Click message corrected.
+// FIX: 'stadiumid' TextBox completely replaced with cmbStadium ComboBox.
+
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 using EPL_DBMS.DataAccess;
 using EPL_DBMS.Models;
-using System;
-using System.Windows.Forms;
+using EPL_DBMS.Utils;
 
 namespace EPL_DBMS.Forms
 {
     public partial class TeamsForm : Form
     {
+        private List<Stadium> _stadiums;   // NEW
+
         public TeamsForm()
         {
             InitializeComponent();
+
+            // NEW: Modern styling
+            ApplyModernStyling();
+
             txtid.TextChanged += txtid_TextChanged;
             LoadTeamsGrid();
-            Placeholder(txtname,      "Name");
-            Placeholder(txtfounded,   "Founded");
-            Placeholder(txtkitcolor,  "Kit Color");
-            Placeholder(txtstadiumid, "Stadium ID");
-            Placeholder(txtid,        "ENTER Team ID");
+
+            // ADJUSTMENT: Call the stadium loader in the constructor
+            LoadStadiumComboBox();
+
+            // FIX: Now calls UIHelper — no duplicate Placeholder method needed
+            UIHelper.SetPlaceholder(txtname, "Club Name");
+            UIHelper.SetPlaceholder(txtfounded, "Year Founded");
+            UIHelper.SetPlaceholder(txtkitcolor, "Kit Color");
+            UIHelper.SetPlaceholder(txtid, "ENTER TEAM ID");
             txtid.ForeColor = System.Drawing.Color.Black;
         }
 
-        // ── Grid loading ─────────────────────────────────────────────────────────
+        private void ApplyModernStyling()
+        {
+            this.BackColor = UIHelper.SurfaceColor;
+            this.Font = new System.Drawing.Font("Segoe UI", 9f);
+
+            UIHelper.StyleGrid(dataGridViewTeams);
+
+            UIHelper.StyleButton(btnAdd, UIHelper.SuccessColor);
+            UIHelper.StyleButton(btnUpdate, UIHelper.PrimaryAccent);
+            UIHelper.StyleButton(btnDelete, UIHelper.DangerColor);
+            UIHelper.StyleButton(btnBack, System.Drawing.Color.FromArgb(108, 117, 125));
+            UIHelper.StyleButton(btnTeamStats, UIHelper.PrimaryAccent);
+        }
 
         private void LoadTeamsGrid()
         {
             try
             {
-                // ── CHANGED: call the ViewModel method (INNER JOIN in SQL) ──
                 var teams = TeamRepository.GetAllTeamsForGrid();
                 dataGridViewTeams.DataSource = teams;
 
-                // ── Hide raw FK ID column ─────────────────────────────────────
-                dataGridViewTeams.Columns["TeamId"].Visible    = false;
+                dataGridViewTeams.Columns["TeamId"].Visible = false;
                 dataGridViewTeams.Columns["StadiumId"].Visible = false;
 
-                // ── Format the ViewModel name column ─────────────────────────
-                dataGridViewTeams.Columns["StadiumName"].HeaderText   = "Stadium";
-                dataGridViewTeams.Columns["StadiumName"].DisplayIndex = 3; // After kit color
-
-                // ── Format the base columns ───────────────────────────────────
-                dataGridViewTeams.Columns["TeamName"].HeaderText    = "Club";
+                dataGridViewTeams.Columns["StadiumName"].HeaderText = "Stadium";
+                dataGridViewTeams.Columns["StadiumName"].DisplayIndex = 3;
+                dataGridViewTeams.Columns["TeamName"].HeaderText = "Club";
                 dataGridViewTeams.Columns["YearFounded"].HeaderText = "Founded";
                 dataGridViewTeams.Columns["HomeKitColor"].HeaderText = "Kit Color";
 
-                // Hide the computed helper property — users don't need to see it
                 if (dataGridViewTeams.Columns.Contains("DisplayText"))
                     dataGridViewTeams.Columns["DisplayText"].Visible = false;
 
-                dataGridViewTeams.AutoResizeColumns();
+                dataGridViewTeams.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }
             catch (Exception ex)
             {
@@ -56,7 +82,14 @@ namespace EPL_DBMS.Forms
             }
         }
 
-        // ── Auto-fill fields when a Team ID is typed ─────────────────────────────
+        private void LoadStadiumComboBox()
+        {
+            _stadiums = StadiumRepository.GetAllStadiums();
+            cmbStadium.DataSource = _stadiums;
+            cmbStadium.DisplayMember = "StadiumName";
+            cmbStadium.ValueMember = "StadiumId";
+            cmbStadium.SelectedIndex = -1;
+        }
 
         private void txtid_TextChanged(object sender, EventArgs e)
         {
@@ -64,42 +97,28 @@ namespace EPL_DBMS.Forms
 
             var team = TeamRepository.GetById(id);
 
-                if (team != null)
-                {
-                    txtname.Text = team.TeamName;
-                    txtfounded.Text = team.YearFounded.ToString();
-                    txtkitcolor.Text = team.HomeKitColor;
-                    txtstadiumid.Text = team.StadiumId.ToString();
-
-                    // make txt black
-                    txtname.ForeColor = System.Drawing.Color.Black;
-                    txtfounded.ForeColor = System.Drawing.Color.Black;
-                    txtkitcolor.ForeColor = System.Drawing.Color.Black;
-                    txtstadiumid.ForeColor = System.Drawing.Color.Black;
-
-                }
-
             if (team != null)
             {
-                txtname.Text      = team.TeamName;
-                txtfounded.Text   = team.YearFounded.ToString();
-                txtkitcolor.Text  = team.HomeKitColor;
-                txtstadiumid.Text = team.StadiumId.ToString();
+                txtname.Text = team.TeamName;
+                txtfounded.Text = team.YearFounded.ToString();
+                txtkitcolor.Text = team.HomeKitColor;
 
-                txtname.ForeColor      = System.Drawing.Color.Black;
-                txtfounded.ForeColor   = System.Drawing.Color.Black;
-                txtkitcolor.ForeColor  = System.Drawing.Color.Black;
-                txtstadiumid.ForeColor = System.Drawing.Color.Black;
+                // ADJUSTMENT: Set ComboBox value instead of TextBox text
+                cmbStadium.SelectedValue = team.StadiumId;
+
+                txtname.ForeColor = System.Drawing.Color.Black;
+                txtfounded.ForeColor = System.Drawing.Color.Black;
+                txtkitcolor.ForeColor = System.Drawing.Color.Black;
             }
             else
             {
-                txtname.Clear(); txtfounded.Clear(); txtkitcolor.Clear(); txtstadiumid.Clear();
+                txtname.Clear(); txtfounded.Clear(); txtkitcolor.Clear();
+                cmbStadium.SelectedIndex = -1; // Reset ComboBox
+
                 MessageBox.Show("No team found with ID: " + id, "Not Found",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
-        // ── Row click — populate input fields (hidden IDs still readable) ─────────
 
         private void dataGridViewTeams_CellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -107,117 +126,157 @@ namespace EPL_DBMS.Forms
 
             var row = dataGridViewTeams.CurrentRow;
 
-            // TeamId and StadiumId are hidden (Visible=false) but still accessible
-            txtid.Text         = row.Cells["TeamId"].Value.ToString();
-            txtname.Text       = row.Cells["TeamName"].Value.ToString();
-            txtfounded.Text    = row.Cells["YearFounded"].Value.ToString();
-            txtkitcolor.Text   = row.Cells["HomeKitColor"].Value.ToString();
-            txtstadiumid.Text  = row.Cells["StadiumId"].Value.ToString();
+            txtid.Text = row.Cells["TeamId"].Value.ToString();
+            txtname.Text = row.Cells["TeamName"].Value.ToString();
+            txtfounded.Text = row.Cells["YearFounded"].Value.ToString();
+            txtkitcolor.Text = row.Cells["HomeKitColor"].Value.ToString();
 
-            txtid.ForeColor        = System.Drawing.Color.Black;
-            txtname.ForeColor      = System.Drawing.Color.Black;
-            txtfounded.ForeColor   = System.Drawing.Color.Black;
-            txtkitcolor.ForeColor  = System.Drawing.Color.Black;
-            txtstadiumid.ForeColor = System.Drawing.Color.Black;
+            // ADJUSTMENT: Set ComboBox value instead of TextBox text
+            cmbStadium.SelectedValue = row.Cells["StadiumId"].Value;
+
+            txtid.ForeColor = System.Drawing.Color.Black;
+            txtname.ForeColor = System.Drawing.Color.Black;
+            txtfounded.ForeColor = System.Drawing.Color.Black;
+            txtkitcolor.ForeColor = System.Drawing.Color.Black;
         }
-
-        // ── Double-click — open Team Stats for this team ─────────────────────────
 
         private void dataGridViewTeams_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            int    teamId   = (int)dataGridViewTeams.Rows[e.RowIndex].Cells["TeamId"].Value;
+            int teamId = (int)dataGridViewTeams.Rows[e.RowIndex].Cells["TeamId"].Value;
             string teamName = dataGridViewTeams.Rows[e.RowIndex].Cells["TeamName"].Value.ToString();
 
-            // Pass the teamId so TeamStatsForm uses its contextual SQL WHERE constructor
-            var statsForm = new TeamStatsForm(teamId, teamName);
-            statsForm.ShowDialog();
+            using (var statsForm = new TeamStatsForm(teamId, teamName))
+                statsForm.ShowDialog();
         }
-
-        // ── CRUD operations (unchanged — work with base Team model) ───────────────
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtname.Text) || txtname.Text == "Club Name")
+            {
+                MessageBox.Show("Please enter a team name.", "Validation",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // ADJUSTMENT: Removed stadiumId TryParse, added ComboBox validation
+            if (!int.TryParse(txtfounded.Text, out int founded))
+            {
+                MessageBox.Show("Year Founded must be a valid number.",
+                    "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cmbStadium.SelectedIndex < 0)
+            {
+                MessageBox.Show("Please select a Stadium.", "Validation",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
                 var t = new Team
                 {
-                    TeamName     = txtname.Text,
-                    YearFounded  = int.Parse(txtfounded.Text),
-                    HomeKitColor = txtkitcolor.Text,
-                    StadiumId    = int.Parse(txtstadiumid.Text)
+                    TeamName = txtname.Text.Trim(),
+                    YearFounded = founded,
+                    HomeKitColor = txtkitcolor.Text.Trim(),
+
+                    // ADJUSTMENT: Read value directly from ComboBox
+                    StadiumId = (int)cmbStadium.SelectedValue
                 };
                 TeamRepository.Add(t);
+
+                MessageBox.Show("Team added successfully!", "Success",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadTeamsGrid();
                 ClearFields();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error adding team: " + ex.Message);
+                MessageBox.Show("Error adding team: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
+            if (dataGridViewTeams.CurrentRow == null) return;
+
+            // ADJUSTMENT: Removed stadiumId TryParse, added ComboBox validation
+            if (!int.TryParse(txtfounded.Text, out int founded))
+            {
+                MessageBox.Show("Year Founded must be a valid number.",
+                    "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (cmbStadium.SelectedIndex < 0)
+            {
+                MessageBox.Show("Please select a Stadium.", "Validation",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
-                if (dataGridViewTeams.CurrentRow == null) return;
-
                 var t = new Team
                 {
-                    TeamId       = int.Parse(txtid.Text),
-                    TeamName     = txtname.Text,
-                    YearFounded  = int.Parse(txtfounded.Text),
-                    HomeKitColor = txtkitcolor.Text,
-                    StadiumId    = int.Parse(txtstadiumid.Text)
+                    TeamId = int.Parse(txtid.Text),
+                    TeamName = txtname.Text.Trim(),
+                    YearFounded = founded,
+                    HomeKitColor = txtkitcolor.Text.Trim(),
+
+                    // ADJUSTMENT: Read value directly from ComboBox
+                    StadiumId = (int)cmbStadium.SelectedValue
                 };
                 TeamRepository.Update(t);
+
+                MessageBox.Show("Team updated successfully.", "Success",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadTeamsGrid();
                 ClearFields();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error updating Team: " + ex.Message);
+                MessageBox.Show("Error updating team: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            if (dataGridViewTeams.CurrentRow == null) return;
+
+            var confirm = MessageBox.Show(
+                "Are you sure you want to delete this team? This may affect related players and matches.",
+                "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
             try
             {
-                if (dataGridViewTeams.CurrentRow == null) return;
                 TeamRepository.Delete(int.Parse(txtid.Text));
+
+                MessageBox.Show("Team deleted.", "Deleted",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadTeamsGrid();
                 ClearFields();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error deleting Team: " + ex.Message);
+                MessageBox.Show("Error deleting team: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        // ── Helpers ──────────────────────────────────────────────────────────────
-
-        private void Placeholder(TextBox txt, string placeholder)
-        {
-            txt.Text      = placeholder;
-            txt.ForeColor = System.Drawing.Color.Gray;
-
-            txt.GotFocus += (s, e) =>
-            {
-                if (txt.Text == placeholder) { txt.Text = ""; txt.ForeColor = System.Drawing.Color.Black; }
-            };
-            txt.LostFocus += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(txt.Text)) { txt.Text = placeholder; txt.ForeColor = System.Drawing.Color.Gray; }
-            };
         }
 
         private void ClearFields()
         {
-            txtname.Clear(); txtkitcolor.Clear(); txtfounded.Clear();
-            txtstadiumid.Clear(); txtid.Clear();
+            txtname.Clear(); txtkitcolor.Clear(); txtfounded.Clear(); txtid.Clear();
+
+            // ADJUSTMENT: Reset ComboBox instead of clearing TextBox
+            cmbStadium.SelectedIndex = -1;
         }
 
         private void btnBack_Click(object sender, EventArgs e) => this.Close();
@@ -228,41 +287,33 @@ namespace EPL_DBMS.Forms
         {
             if (dataGridViewTeams.CurrentRow == null)
             {
-                MessageBox.Show("Please select a player from the table first.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please select a team from the table first.",
+                    "Notice", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            int TeamId = (int)dataGridViewTeams.CurrentRow.Cells["TeamId"].Value;
-            string TeamName = dataGridViewTeams.CurrentRow.Cells["TeamName"].Value.ToString();
+            int teamId = (int)dataGridViewTeams.CurrentRow.Cells["TeamId"].Value;
+            string teamName = dataGridViewTeams.CurrentRow.Cells["TeamName"].Value.ToString();
 
-            // 1. Ask the database FIRST
-            var stats = TeamStatRepository.GetStatsByTeamId(TeamId);
-
-            // 2. If it's empty, show the message and STOP. The form never opens!
+            var stats = TeamStatRepository.GetStatsByTeamId(teamId);
             if (stats == null || stats.Count == 0)
             {
-                MessageBox.Show($"{TeamName} has no match statistics recorded.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"{teamName} has no match statistics recorded.",
+                    "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // 3. If we made it here, they have stats. Open the form!
-            NavigateTo(new PlayerStatsForm(TeamId, TeamName));
+            NavigateTo(new TeamStatsForm(teamId, teamName));
         }
 
         private void NavigateTo(Form childForm)
         {
-            txtname.Clear();
-            txtkitcolor.Clear();
-            txtfounded.Clear();
-            txtstadiumid.Clear();
-            txtid.Clear();
+            ClearFields();
             this.Hide();
-
             using (childForm)
             {
                 childForm.ShowDialog();
             }
-
             this.Show();
         }
     }

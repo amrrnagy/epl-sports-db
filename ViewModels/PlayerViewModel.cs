@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EPL_DBMS.Models;
-
-namespace EPL_DBMS.ViewModels
+﻿namespace EPL_DBMS.ViewModels
 {
-    public class PlayerViewModel : Player
+    public class PlayerViewModel
     {
+        // Base Properties
+        public int PlayerId { get; set; }
+        public string PlayerName { get; set; }
+        public string Position { get; set; }
+        public int Age { get; set; }
+        public string Nationality { get; set; }
+        public int TeamId { get; set; }
+
+        // Joined UI Properties
         public string TeamName { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
@@ -9,18 +10,19 @@ namespace EPL_DBMS.DataAccess
 {
     public static class ManagerRepository
     {
-        // ── Existing methods (unchanged) ────────────────────────────────────────
-
         public static List<Manager> GetAllManagers()
         {
             var list = new List<Manager>();
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("SELECT * FROM Managers", con);
-                using (var reader = cmd.ExecuteReader())
-                    while (reader.Read())
-                        list.Add(Map(reader));
+                using (var cmd = new SqlCommand("sp_Manager_GetAll", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
+                            list.Add(Map(reader));
+                }
             }
             return list;
         }
@@ -30,10 +32,13 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("SELECT * FROM Managers WHERE Manager_ID = @id", con);
-                cmd.Parameters.AddWithValue("@id", id);
-                using (var reader = cmd.ExecuteReader())
-                    return reader.Read() ? Map(reader) : null;
+                using (var cmd = new SqlCommand("sp_Manager_GetById", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@ManagerId", id);
+                    using (var reader = cmd.ExecuteReader())
+                        return reader.Read() ? Map(reader) : null;
+                }
             }
         }
 
@@ -44,27 +49,25 @@ namespace EPL_DBMS.DataAccess
                 using (var con = DatabaseHelper.GetConnection())
                 {
                     con.Open();
-                    var cmd = new SqlCommand(
-                        "INSERT INTO Managers (Manager_Name, Nationality, Preferred_Formation, Team_ID, Experience_Years) " +
-                        "VALUES (@name, @nat, @form, @tid, @exp)", con);
-
-                    cmd.Parameters.AddWithValue("@name", m.ManagerName);
-                    cmd.Parameters.AddWithValue("@nat", m.Nationality);
-                    cmd.Parameters.AddWithValue("@form", m.PreferredFormation);
-                    cmd.Parameters.AddWithValue("@tid", m.TeamId);
-                    cmd.Parameters.AddWithValue("@exp", m.ExperienceYears);
-
-                    cmd.ExecuteNonQuery();
+                    using (var cmd = new SqlCommand("sp_Manager_Insert", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@ManagerName",        m.ManagerName);
+                        cmd.Parameters.AddWithValue("@Nationality",        m.Nationality);
+                        cmd.Parameters.AddWithValue("@PreferredFormation", m.PreferredFormation);
+                        cmd.Parameters.AddWithValue("@TeamId",             m.TeamId);
+                        cmd.Parameters.AddWithValue("@ExperienceYears",    m.ExperienceYears);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (SqlException ex)
             {
-                // Check if the error number 2627 (Unique Constraint) or 2601 (Unique Index)
                 if (ex.Number == 2627 || ex.Number == 2601)
                 {
                     throw new Exception("This team already has a manager assigned. Please update the existing manager or choose a different team.");
                 }
-                throw; // Re-throw other SQL errors (like connection issues)
+                throw;
             }
         }
 
@@ -73,17 +76,17 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand(
-                    "UPDATE Managers SET Manager_Name=@name, Nationality=@nat, " +
-                    "Preferred_Formation=@form, Team_ID=@tid, Experience_Years=@exp " +
-                    "WHERE Manager_ID=@id", con);
-                cmd.Parameters.AddWithValue("@name", m.ManagerName);
-                cmd.Parameters.AddWithValue("@nat",  m.Nationality);
-                cmd.Parameters.AddWithValue("@form", m.PreferredFormation);
-                cmd.Parameters.AddWithValue("@tid",  m.TeamId);
-                cmd.Parameters.AddWithValue("@exp",  m.ExperienceYears);
-                cmd.Parameters.AddWithValue("@id",   m.ManagerId);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Manager_Update", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@ManagerId",          m.ManagerId);
+                    cmd.Parameters.AddWithValue("@ManagerName",        m.ManagerName);
+                    cmd.Parameters.AddWithValue("@Nationality",        m.Nationality);
+                    cmd.Parameters.AddWithValue("@PreferredFormation", m.PreferredFormation);
+                    cmd.Parameters.AddWithValue("@TeamId",             m.TeamId);
+                    cmd.Parameters.AddWithValue("@ExperienceYears",    m.ExperienceYears);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -92,15 +95,14 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("DELETE FROM Managers WHERE Manager_ID = @id", con);
-                cmd.Parameters.AddWithValue("@id", id);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Manager_Delete", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@ManagerId", id);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
-
-        // ── NEW: ViewModel method for the DataGridView ───────────────────────────
-        // Uses an INNER JOIN to resolve Team_ID -> Team_Name.
-        // No LINQ. No in-memory filtering.
 
         public static List<ManagerViewModel> GetAllManagersForGrid()
         {
@@ -108,37 +110,29 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-
-                string query = @"
-                    SELECT m.*, t.Team_Name
-                    FROM   Managers m
-                    INNER  JOIN Teams t ON m.Team_ID = t.Team_ID";
-
-                var cmd = new SqlCommand(query, con);
-                using (var reader = cmd.ExecuteReader())
+                using (var cmd = new SqlCommand("sp_Manager_GetAllForGrid", con))
                 {
-                    while (reader.Read())
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        list.Add(new ManagerViewModel
+                        while (reader.Read())
                         {
-                            // Base Model properties
-                            ManagerId          = (int)reader["Manager_ID"],
-                            ManagerName        = reader["Manager_Name"].ToString(),
-                            Nationality        = reader["Nationality"].ToString(),
-                            PreferredFormation = reader["Preferred_Formation"].ToString(),
-                            TeamId             = (int)reader["Team_ID"],
-                            ExperienceYears    = (int)reader["Experience_Years"],
-
-                            // ViewModel property
-                            TeamName           = reader["Team_Name"].ToString()
-                        });
+                            list.Add(new ManagerViewModel
+                            {
+                                ManagerId          = (int)reader["Manager_ID"],
+                                ManagerName        = reader["Manager_Name"].ToString(),
+                                Nationality        = reader["Nationality"].ToString(),
+                                PreferredFormation = reader["Preferred_Formation"].ToString(),
+                                TeamId             = (int)reader["Team_ID"],
+                                ExperienceYears    = (int)reader["Experience_Years"],
+                                TeamName           = reader["Team_Name"].ToString()
+                            });
+                        }
                     }
                 }
             }
             return list;
         }
-
-        // ── Private mapper ───────────────────────────────────────────────────────
 
         private static Manager Map(SqlDataReader r) => new Manager
         {

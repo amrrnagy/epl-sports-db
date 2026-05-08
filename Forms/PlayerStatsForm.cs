@@ -34,14 +34,22 @@ namespace EPL_DBMS.Forms
 
                 if (_playerId.HasValue)
                 {
-                    // SPECIFIC PLAYER (Shows the raw individual match log)
+                    // SPECIFIC PLAYER
                     dgv.DataSource = PlayerStatRepository.GetStatsByPlayerId(_playerId.Value);
 
                     dgv.Columns["PlayerStatId"].Visible = false;
                     dgv.Columns["PlayerId"].Visible = false;
-                    dgv.Columns["PlayerName"].Visible = false; // Redundant with window title
+                    dgv.Columns["MatchId"].Visible = false; // Hide raw Match ID
+                    dgv.Columns["PlayerName"].Visible = false;
 
-                    dgv.Columns["MatchId"].HeaderText = "Match ID";
+                    // NEW: Make MatchDisplay visible and beautiful!
+                    if (dgv.Columns["MatchDisplay"] != null)
+                    {
+                        dgv.Columns["MatchDisplay"].Visible = true;
+                        dgv.Columns["MatchDisplay"].HeaderText = "Match Date & Opponent";
+                        dgv.Columns["MatchDisplay"].DisplayIndex = 0; // Move to far left
+                    }
+
                     dgv.Columns["GoalsScored"].HeaderText = "Goals";
                     dgv.Columns["Assists"].HeaderText = "Assists";
                     dgv.Columns["YellowCards"].HeaderText = "Yellow Cards";
@@ -50,7 +58,7 @@ namespace EPL_DBMS.Forms
                 }
                 else
                 {
-                    // GLOBAL DASHBOARD (Uses the new Statistical Top Performers Aggregation!)
+                    // GLOBAL DASHBOARD
                     dgv.DataSource = PlayerStatRepository.GetLeagueTopPerformers();
 
                     dgv.Columns["PlayerName"].HeaderText = "Player";

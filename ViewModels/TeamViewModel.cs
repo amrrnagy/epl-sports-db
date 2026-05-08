@@ -1,12 +1,15 @@
-using EPL_DBMS.Models;
-
 namespace EPL_DBMS.ViewModels
 {
-    // Inherits ALL properties from Team:
-    //   TeamId, TeamName, YearFounded, HomeKitColor, StadiumId
-    public class TeamViewModel : Team
+    public class TeamViewModel
     {
-        // FK: Stadium_ID -> Stadiums.Stadium_Name
+        // Base Properties
+        public int TeamId { get; set; }
+        public string TeamName { get; set; }
+        public int YearFounded { get; set; }
+        public string HomeKitColor { get; set; }
+        public int StadiumId { get; set; }
+        
+        // Joined UI Properties
         public string StadiumName { get; set; }
     }
 }

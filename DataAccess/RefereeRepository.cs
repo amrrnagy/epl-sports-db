@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
@@ -13,10 +14,13 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("SELECT * FROM Referees", con);
-                using (var reader = cmd.ExecuteReader())
-                    while (reader.Read())
-                        list.Add(Map(reader));
+                using (var cmd = new SqlCommand("sp_Referee_GetAll", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
+                            list.Add(Map(reader));
+                }
             }
             return list;
         }
@@ -26,10 +30,13 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("SELECT * FROM Referees WHERE Referee_ID = @id", con);
-                cmd.Parameters.AddWithValue("@id", id);
-                using (var reader = cmd.ExecuteReader())
-                    return reader.Read() ? Map(reader) : null;
+                using (var cmd = new SqlCommand("sp_Referee_GetById", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@RefereeId", id);
+                    using (var reader = cmd.ExecuteReader())
+                        return reader.Read() ? Map(reader) : null;
+                }
             }
         }
 
@@ -38,11 +45,13 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand(
-                    "INSERT INTO Referees (Referee_Name, Nationality) VALUES (@name, @nat)", con);
-                cmd.Parameters.AddWithValue("@name", r.RefereeName);
-                cmd.Parameters.AddWithValue("@nat",  r.Nationality);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Referee_Insert", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@RefereeName", r.RefereeName);
+                    cmd.Parameters.AddWithValue("@Nationality", r.Nationality);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -51,12 +60,14 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand(
-                    "UPDATE Referees SET Referee_Name=@name, Nationality=@nat WHERE Referee_ID=@id", con);
-                cmd.Parameters.AddWithValue("@name", r.RefereeName);
-                cmd.Parameters.AddWithValue("@nat",  r.Nationality);
-                cmd.Parameters.AddWithValue("@id",   r.RefereeId);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Referee_Update", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@RefereeId",   r.RefereeId);
+                    cmd.Parameters.AddWithValue("@RefereeName", r.RefereeName);
+                    cmd.Parameters.AddWithValue("@Nationality", r.Nationality);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -65,9 +76,12 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("DELETE FROM Referees WHERE Referee_ID = @id", con);
-                cmd.Parameters.AddWithValue("@id", id);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Referee_Delete", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@RefereeId", id);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 

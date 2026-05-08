@@ -18,119 +18,79 @@ namespace EPL_DBMS.Forms
             this.txtnationality = new System.Windows.Forms.TextBox();
             this.txtid = new System.Windows.Forms.TextBox();
             this.btnBack = new System.Windows.Forms.Button();
-            this.delete = new System.Windows.Forms.Button();
-            this.update = new System.Windows.Forms.Button();
-            this.add = new System.Windows.Forms.Button();
+            this.btnDelete = new System.Windows.Forms.Button();
+            this.btnUpdate = new System.Windows.Forms.Button();
+            this.btnAdd = new System.Windows.Forms.Button();
             this.dataGridViewReferees = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReferees)).BeginInit();
             this.SuspendLayout();
-            // 
+
             // txtname
-            // 
-            this.txtname.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtname.Location = new System.Drawing.Point(256, 70);
             this.txtname.Name = "txtname";
-            this.txtname.Size = new System.Drawing.Size(93, 22);
-            this.txtname.TabIndex = 17;
-            // 
+            this.txtname.Size = new System.Drawing.Size(120, 22);
+
             // txtnationality
-            // 
-            this.txtnationality.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtnationality.Location = new System.Drawing.Point(411, 70);
             this.txtnationality.Name = "txtnationality";
-            this.txtnationality.Size = new System.Drawing.Size(93, 22);
-            this.txtnationality.TabIndex = 18;
-            // 
+            this.txtnationality.Size = new System.Drawing.Size(120, 22);
+
             // txtid
-            // 
-            this.txtid.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.txtid.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.txtid.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtid.Location = new System.Drawing.Point(283, 15);
-            this.txtid.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtid.Multiline = true;
             this.txtid.Name = "txtid";
             this.txtid.Size = new System.Drawing.Size(194, 24);
-            this.txtid.TabIndex = 23;
-            this.txtid.Text = "ENTER REFEREE ID";
-            this.txtid.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtid.TextChanged += new System.EventHandler(this.txtid_TextChanged_1);
-            // 
+            // Notice: Event handler removed here!
+
             // btnBack
-            // 
             this.btnBack.Location = new System.Drawing.Point(10, 12);
             this.btnBack.Name = "btnBack";
             this.btnBack.Size = new System.Drawing.Size(80, 30);
-            this.btnBack.TabIndex = 23;
             this.btnBack.Text = "Back";
             this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
-            // 
-            // delete
-            // 
-            this.delete.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.delete.Location = new System.Drawing.Point(547, 119);
-            this.delete.Name = "delete";
-            this.delete.Size = new System.Drawing.Size(93, 63);
-            this.delete.TabIndex = 27;
-            this.delete.Text = "Delete";
-            this.delete.Click += new System.EventHandler(this.btnDelete_Click);
-            // 
-            // update
-            // 
-            this.update.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.update.Location = new System.Drawing.Point(334, 119);
-            this.update.Name = "update";
-            this.update.Size = new System.Drawing.Size(93, 63);
-            this.update.TabIndex = 26;
-            this.update.Text = "Update";
-            this.update.Click += new System.EventHandler(this.btnUpdate_Click);
-            // 
-            // add
-            // 
-            this.add.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.add.Location = new System.Drawing.Point(121, 119);
-            this.add.Name = "add";
-            this.add.Size = new System.Drawing.Size(93, 63);
-            this.add.TabIndex = 25;
-            this.add.Text = "Add";
-            this.add.Click += new System.EventHandler(this.btnAdd_Click);
-            // 
+
+            // btnDelete
+            this.btnDelete.Location = new System.Drawing.Point(547, 119);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(93, 40);
+            this.btnDelete.Text = "Delete";
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+
+            // btnUpdate
+            this.btnUpdate.Location = new System.Drawing.Point(334, 119);
+            this.btnUpdate.Name = "btnUpdate";
+            this.btnUpdate.Size = new System.Drawing.Size(93, 40);
+            this.btnUpdate.Text = "Update";
+            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
+
+            // btnAdd
+            this.btnAdd.Location = new System.Drawing.Point(121, 119);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(93, 40);
+            this.btnAdd.Text = "Add";
+            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+
             // dataGridViewReferees
-            // 
-            this.dataGridViewReferees.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridViewReferees.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridViewReferees.BackgroundColor = System.Drawing.SystemColors.ActiveBorder;
-            this.dataGridViewReferees.ColumnHeadersHeight = 29;
+            this.dataGridViewReferees.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewReferees.Location = new System.Drawing.Point(11, 201);
             this.dataGridViewReferees.Name = "dataGridViewReferees";
-            this.dataGridViewReferees.ReadOnly = true;
-            this.dataGridViewReferees.RowHeadersWidth = 51;
-            this.dataGridViewReferees.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewReferees.Size = new System.Drawing.Size(738, 259);
-            this.dataGridViewReferees.TabIndex = 28;
             this.dataGridViewReferees.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewReferees_CellClick);
-            // 
+
             // RefereesForm
-            // 
             this.ClientSize = new System.Drawing.Size(760, 472);
             this.Controls.Add(this.txtnationality);
             this.Controls.Add(this.txtname);
             this.Controls.Add(this.dataGridViewReferees);
-            this.Controls.Add(this.add);
-            this.Controls.Add(this.update);
-            this.Controls.Add(this.delete);
+            this.Controls.Add(this.btnAdd);
+            this.Controls.Add(this.btnUpdate);
+            this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnBack);
             this.Controls.Add(this.txtid);
             this.Name = "RefereesForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "RefereesForm";
-            this.Load += new System.EventHandler(this.RefereesForm_Load);
+            this.Text = "Referees";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReferees)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
@@ -138,9 +98,9 @@ namespace EPL_DBMS.Forms
         private System.Windows.Forms.TextBox txtnationality;
         private System.Windows.Forms.TextBox txtid;
         private System.Windows.Forms.Button btnBack;
-        private System.Windows.Forms.Button delete;
-        private System.Windows.Forms.Button update;
-        private System.Windows.Forms.Button add;
+        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.Button btnUpdate;
+        private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.DataGridView dataGridViewReferees;
     }
 }

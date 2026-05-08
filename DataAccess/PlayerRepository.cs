@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
@@ -14,15 +15,16 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("SELECT * FROM Players", con);
-                using (var reader = cmd.ExecuteReader())
-                    while (reader.Read())
-                        list.Add(Map(reader));
+                using (var cmd = new SqlCommand("sp_Player_GetAll", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
+                            list.Add(Map(reader));
+                }
             }
             return list;
         }
-
-        // Make sure to add this at the top of your file if you haven't already:
 
         public static List<PlayerViewModel> GetAllPlayersForGrid()
         {
@@ -30,31 +32,24 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-
-                // We use an INNER JOIN to connect Players to Teams
-                string query = @"
-                                SELECT p.*, t.Team_Name 
-                                FROM Players p
-                                INNER JOIN Teams t ON p.Team_ID = t.Team_ID";
-
-                var cmd = new SqlCommand(query, con);
-                using (var reader = cmd.ExecuteReader())
+                using (var cmd = new SqlCommand("sp_Player_GetAllForGrid", con))
                 {
-                    while (reader.Read())
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        list.Add(new PlayerViewModel
+                        while (reader.Read())
                         {
-                            // 1. The base properties (inherited from Player)
-                            PlayerId = (int)reader["Player_ID"],
-                            PlayerName = reader["Player_Name"].ToString(),
-                            Position = reader["Position"].ToString(),
-                            Age = (int)reader["Age"],
-                            Nationality = reader["Nationality"].ToString(),
-                            TeamId = (int)reader["Team_ID"],
-
-                            // 2. The extra UI property
-                            TeamName = reader["Team_Name"].ToString()
-                        });
+                            list.Add(new PlayerViewModel
+                            {
+                                PlayerId    = (int)reader["Player_ID"],
+                                PlayerName  = reader["Player_Name"].ToString(),
+                                Position    = reader["Position"].ToString(),
+                                Age         = (int)reader["Age"],
+                                Nationality = reader["Nationality"].ToString(),
+                                TeamId      = (int)reader["Team_ID"],
+                                TeamName    = reader["Team_Name"].ToString()
+                            });
+                        }
                     }
                 }
             }
@@ -66,11 +61,31 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("SELECT * FROM Players WHERE Player_ID = @id", con);
-                cmd.Parameters.AddWithValue("@id", id);
-                using (var reader = cmd.ExecuteReader())
-                    return reader.Read() ? Map(reader) : null;
+                using (var cmd = new SqlCommand("sp_Player_GetById", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PlayerId", id);
+                    using (var reader = cmd.ExecuteReader())
+                        return reader.Read() ? Map(reader) : null;
+                }
             }
+        }
+
+        public static List<string> GetAllPositions()
+        {
+            var list = new List<string>();
+            using (var con = DatabaseHelper.GetConnection())
+            {
+                con.Open();
+                using (var cmd = new SqlCommand("sp_Player_GetDistinctPositions", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
+                            list.Add(reader["Position"].ToString());
+                }
+            }
+            return list;
         }
 
         public static void Add(Player p)
@@ -78,15 +93,16 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand(
-                    "INSERT INTO Players (Player_Name, Position, Age, Nationality, Team_ID) " +
-                    "VALUES (@name, @pos, @age, @nat, @tid)", con);
-                cmd.Parameters.AddWithValue("@name", p.PlayerName);
-                cmd.Parameters.AddWithValue("@pos",  p.Position);
-                cmd.Parameters.AddWithValue("@age",  p.Age);
-                cmd.Parameters.AddWithValue("@nat",  p.Nationality);
-                cmd.Parameters.AddWithValue("@tid",  p.TeamId);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Player_Insert", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PlayerName",  p.PlayerName);
+                    cmd.Parameters.AddWithValue("@Position",    p.Position);
+                    cmd.Parameters.AddWithValue("@Age",         p.Age);
+                    cmd.Parameters.AddWithValue("@Nationality", p.Nationality);
+                    cmd.Parameters.AddWithValue("@TeamId",      p.TeamId);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -95,16 +111,17 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand(
-                    "UPDATE Players SET Player_Name=@name, Position=@pos, Age=@age, " +
-                    "Nationality=@nat, Team_ID=@tid WHERE Player_ID=@id", con);
-                cmd.Parameters.AddWithValue("@name", p.PlayerName);
-                cmd.Parameters.AddWithValue("@pos",  p.Position);
-                cmd.Parameters.AddWithValue("@age",  p.Age);
-                cmd.Parameters.AddWithValue("@nat",  p.Nationality);
-                cmd.Parameters.AddWithValue("@tid",  p.TeamId);
-                cmd.Parameters.AddWithValue("@id",   p.PlayerId);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Player_Update", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PlayerId",    p.PlayerId);
+                    cmd.Parameters.AddWithValue("@PlayerName",  p.PlayerName);
+                    cmd.Parameters.AddWithValue("@Position",    p.Position);
+                    cmd.Parameters.AddWithValue("@Age",         p.Age);
+                    cmd.Parameters.AddWithValue("@Nationality", p.Nationality);
+                    cmd.Parameters.AddWithValue("@TeamId",      p.TeamId);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -113,9 +130,12 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("DELETE FROM Players WHERE Player_ID = @id", con);
-                cmd.Parameters.AddWithValue("@id", id);
-                cmd.ExecuteNonQuery();
+                using (var cmd = new SqlCommand("sp_Player_Delete", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PlayerId", id);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -124,8 +144,11 @@ namespace EPL_DBMS.DataAccess
             using (var con = DatabaseHelper.GetConnection())
             {
                 con.Open();
-                var cmd = new SqlCommand("Select Count(*) from Players", con);
-                return (int)cmd.ExecuteScalar();
+                using (var cmd = new SqlCommand("sp_Player_Count", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    return (int)cmd.ExecuteScalar();
+                }
             }
         }
 
