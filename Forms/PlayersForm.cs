@@ -1,9 +1,3 @@
-// FIX: txtteamid replaced with cmbTeam (ComboBox).
-// FIX: btnDelete_Click now calls LoadPlayersGrid() not LoadPlayers().
-// FIX: CellClick now always enables Update/Delete buttons.
-// FIX: All MessageBox calls now have appropriate icons.
-// NEW: Calls UIHelper for styling and SetPlaceholder.
-
 using EPL_DBMS.DataAccess;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
@@ -16,7 +10,6 @@ namespace EPL_DBMS.Forms
 {
     public partial class PlayersForm : Form
     {
-        // NEW: Teams list for the ComboBox
         private List<Team> _teams;
         private List<string> _positions;
 
@@ -34,22 +27,18 @@ namespace EPL_DBMS.Forms
         {
             InitializeComponent();
 
-            // NEW: Modern styling
             ApplyModernStyling();
 
-            // NEW: Load team dropdown before loading grid
             LoadTeamComboBox();
             LoadPositionComboBox();
             LoadPlayersGrid();
 
-            // FIX: Placeholders now call UIHelper — no duplicate code
             UIHelper.SetPlaceholder(txtname, "Full Name");
             UIHelper.SetPlaceholder(txtage, "Age");
             UIHelper.SetPlaceholder(txtnationality, "Nationality");
             UIHelper.SetPlaceholder(txtid, "ENTER PLAYER ID");
         }
 
-        // NEW
         private void ApplyModernStyling()
         {
             this.BackColor = UIHelper.SurfaceColor;
@@ -57,7 +46,6 @@ namespace EPL_DBMS.Forms
 
             UIHelper.StyleGrid(dataGridViewPlayers);
 
-            // FIX: Updated to match the new button names from the Designer!
             UIHelper.StyleButton(btnAdd, UIHelper.SuccessColor);
             UIHelper.StyleButton(btnUpdate, UIHelper.PrimaryAccent);
             UIHelper.StyleButton(btnDelete, UIHelper.DangerColor);
@@ -67,7 +55,6 @@ namespace EPL_DBMS.Forms
             UIHelper.StyleButton(btnPlayerInjuries, UIHelper.DangerColor);
         }
 
-        // NEW: Populate team ComboBox
         private void LoadTeamComboBox()
         {
             _teams = TeamRepository.GetAllTeams();
@@ -128,7 +115,6 @@ namespace EPL_DBMS.Forms
 
             PopulateFields(player);
 
-            // Highlight the row in the DataGridView
             foreach (DataGridViewRow row in dataGridViewPlayers.Rows)
             {
                 if (row.Cells["PlayerId"].Value != null &&
@@ -136,10 +122,7 @@ namespace EPL_DBMS.Forms
                 {
                     dataGridViewPlayers.ClearSelection();
                     row.Selected = true;
-
-                    // ADJUSTMENT: Use a explicitly named visible column to avoid the invisible cell crash
                     dataGridViewPlayers.CurrentCell = row.Cells["PlayerName"];
-
                     dataGridViewPlayers.FirstDisplayedScrollingRowIndex = row.Index;
                     break;
                 }
@@ -163,7 +146,6 @@ namespace EPL_DBMS.Forms
 
                 PlayerRepository.Add(p);
 
-                // FIX: Added icon
                 MessageBox.Show("Player added successfully!", "Success",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadPlayersGrid();
@@ -195,7 +177,6 @@ namespace EPL_DBMS.Forms
                     PlayerName = txtname.Text.Trim(),
                     Age = int.Parse(txtage.Text),
                     Nationality = txtnationality.Text.Trim(),
-                    // FIX: Read from ComboBox
                     TeamId = (int)cmbTeam.SelectedValue,
                     Position = (string)cmbPosition.SelectedValue
                 };
@@ -235,7 +216,6 @@ namespace EPL_DBMS.Forms
                 MessageBox.Show("Player deleted.", "Deleted",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // FIX: Was LoadPlayers() — that method loads raw model and shows TeamId column!
                 LoadPlayersGrid();
                 ClearFields();
             }
@@ -257,18 +237,13 @@ namespace EPL_DBMS.Forms
             txtage.Text = row.Cells["Age"].Value.ToString();
             txtnationality.Text = row.Cells["Nationality"].Value.ToString();
             cmbPosition.SelectedItem = row.Cells["Position"].Value?.ToString();
-
-            // FIX: Set ComboBox by TeamId (hidden column) instead of showing raw ID
             cmbTeam.SelectedValue = row.Cells["TeamId"].Value;
 
             SetAllTextBlack();
 
-            // FIX: Use correctly named buttons!
             btnUpdate.Enabled = true;
             btnDelete.Enabled = true;
         }
-
-        // ── Helpers ──────────────────────────────────────────────────────────
 
         private void PopulateFields(Player p)
         {
@@ -280,7 +255,6 @@ namespace EPL_DBMS.Forms
 
             SetAllTextBlack();
 
-            // FIX: Use correctly named buttons!
             btnUpdate.Enabled = true;
             btnDelete.Enabled = true;
         }
@@ -302,7 +276,6 @@ namespace EPL_DBMS.Forms
                 return false;
             }
 
-            // NEW: Validate ComboBox selection
             if (cmbTeam.SelectedIndex < 0)
             {
                 MessageBox.Show("Please select a team from the dropdown.",
@@ -332,8 +305,8 @@ namespace EPL_DBMS.Forms
             UIHelper.SetPlaceholder(txtage, "Age");
             UIHelper.SetPlaceholder(txtnationality, "Nationality");
             UIHelper.SetPlaceholder(txtid, "ENTER PLAYER ID");
-            cmbTeam.SelectedIndex = -1;  // NEW: Reset ComboBox too
-            cmbPosition.SelectedIndex = -1;  // NEW: Reset ComboBox too
+            cmbTeam.SelectedIndex = -1;
+            cmbPosition.SelectedIndex = -1;
         }
 
         private void btnBack_Click(object sender, EventArgs e) => this.Close();

@@ -8,7 +8,7 @@ namespace EPL_DBMS.Forms
     {
         private readonly int? _playerId;
 
-        // 1. GLOBAL CONSTRUCTOR (Called from Main Form)
+        // Global dashboard constructor
         public PlayerStatsForm()
         {
             InitializeComponent();
@@ -17,7 +17,7 @@ namespace EPL_DBMS.Forms
             this.Load += Form_Load;
         }
 
-        // 2. SPECIFIC CONSTRUCTOR (Called from Players Form)
+        // Specific player constructor
         public PlayerStatsForm(int playerId, string playerName)
         {
             InitializeComponent();
@@ -34,20 +34,18 @@ namespace EPL_DBMS.Forms
 
                 if (_playerId.HasValue)
                 {
-                    // SPECIFIC PLAYER
                     dgv.DataSource = PlayerStatRepository.GetStatsByPlayerId(_playerId.Value);
 
                     dgv.Columns["PlayerStatId"].Visible = false;
                     dgv.Columns["PlayerId"].Visible = false;
-                    dgv.Columns["MatchId"].Visible = false; // Hide raw Match ID
+                    dgv.Columns["MatchId"].Visible = false;
                     dgv.Columns["PlayerName"].Visible = false;
 
-                    // NEW: Make MatchDisplay visible and beautiful!
                     if (dgv.Columns["MatchDisplay"] != null)
                     {
                         dgv.Columns["MatchDisplay"].Visible = true;
                         dgv.Columns["MatchDisplay"].HeaderText = "Match Date & Opponent";
-                        dgv.Columns["MatchDisplay"].DisplayIndex = 0; // Move to far left
+                        dgv.Columns["MatchDisplay"].DisplayIndex = 0;
                     }
 
                     dgv.Columns["GoalsScored"].HeaderText = "Goals";
@@ -58,7 +56,6 @@ namespace EPL_DBMS.Forms
                 }
                 else
                 {
-                    // GLOBAL DASHBOARD
                     dgv.DataSource = PlayerStatRepository.GetLeagueTopPerformers();
 
                     dgv.Columns["PlayerName"].HeaderText = "Player";

@@ -1,11 +1,3 @@
-// FIX: RefereeId column is now hidden in the grid (was visible raw FK).
-// FIX: RefereeId is NOT passed to Add() — it is an IDENTITY column.
-// FIX: Success MessageBoxes added with icons.
-// FIX: Removed dead empty handler 'txtid_TextChanged_1'.
-// FIX: Removed unused 'using System.Xml.Linq' import.
-// FIX: Removed duplicate LoadReferees() call from Load event.
-// NEW: Calls UIHelper for styling and SetPlaceholder.
-
 using EPL_DBMS.DataAccess;
 using EPL_DBMS.Models;
 using EPL_DBMS.Utils;
@@ -25,23 +17,23 @@ namespace EPL_DBMS.Forms
             txtid.TextChanged += txtid_TextChanged;
             LoadReferees();
 
-            UIHelper.SetPlaceholder(txtname,        "Referee Name");
+            UIHelper.SetPlaceholder(txtname, "Referee Name");
             UIHelper.SetPlaceholder(txtnationality, "Nationality");
-            UIHelper.SetPlaceholder(txtid,          "ENTER REFEREE ID");
+            UIHelper.SetPlaceholder(txtid, "ENTER REFEREE ID");
             txtid.ForeColor = System.Drawing.Color.Black;
         }
 
         private void ApplyModernStyling()
         {
             this.BackColor = UIHelper.SurfaceColor;
-            this.Font      = new System.Drawing.Font("Segoe UI", 9f);
+            this.Font = new System.Drawing.Font("Segoe UI", 9f);
 
             UIHelper.StyleGrid(dataGridViewReferees);
 
-            UIHelper.StyleButton(btnAdd,    UIHelper.SuccessColor);
+            UIHelper.StyleButton(btnAdd, UIHelper.SuccessColor);
             UIHelper.StyleButton(btnUpdate, UIHelper.PrimaryAccent);
             UIHelper.StyleButton(btnDelete, UIHelper.DangerColor);
-            UIHelper.StyleButton(btnBack,   System.Drawing.Color.FromArgb(108, 117, 125));
+            UIHelper.StyleButton(btnBack, System.Drawing.Color.FromArgb(108, 117, 125));
         }
 
         private void LoadReferees()
@@ -51,11 +43,9 @@ namespace EPL_DBMS.Forms
                 var referees = RefereeRepository.GetAllReferees();
                 dataGridViewReferees.DataSource = referees;
 
-                // FIX: RefereeId was visible as a raw FK — now hidden
                 if (dataGridViewReferees.Columns["RefereeId"] != null)
                     dataGridViewReferees.Columns["RefereeId"].Visible = false;
 
-                // NEW: Friendly headers
                 if (dataGridViewReferees.Columns["RefereeName"] != null)
                     dataGridViewReferees.Columns["RefereeName"].HeaderText = "Referee";
                 if (dataGridViewReferees.Columns["Nationality"] != null)
@@ -77,17 +67,16 @@ namespace EPL_DBMS.Forms
             var referee = RefereeRepository.GetById(id);
             if (referee != null)
             {
-                txtname.Text        = referee.RefereeName;
+                txtname.Text = referee.RefereeName;
                 txtnationality.Text = referee.Nationality;
 
-                txtname.ForeColor        = System.Drawing.Color.Black;
+                txtname.ForeColor = System.Drawing.Color.Black;
                 txtnationality.ForeColor = System.Drawing.Color.Black;
             }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            // FIX: Validation before any parsing
             if (string.IsNullOrWhiteSpace(txtname.Text) || txtname.Text == "Referee Name")
             {
                 MessageBox.Show("Please enter a referee name.", "Validation",
@@ -99,15 +88,12 @@ namespace EPL_DBMS.Forms
             {
                 var r = new Referee
                 {
-                    // FIX: Do NOT set RefereeId — it is an IDENTITY column.
-                    // Old code passed int.Parse(txtid.Text) which is wrong.
                     RefereeName = txtname.Text.Trim(),
                     Nationality = txtnationality.Text.Trim()
                 };
 
                 RefereeRepository.Add(r);
 
-                // FIX: Added success message (was silent)
                 MessageBox.Show("Referee added successfully!", "Success",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadReferees();
@@ -135,14 +121,13 @@ namespace EPL_DBMS.Forms
             {
                 var r = new Referee
                 {
-                    RefereeId   = id,
+                    RefereeId = id,
                     RefereeName = txtname.Text.Trim(),
                     Nationality = txtnationality.Text.Trim()
                 };
 
                 RefereeRepository.Update(r);
 
-                // FIX: Added success message + icon
                 MessageBox.Show("Referee updated successfully.", "Success",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadReferees();
@@ -176,7 +161,6 @@ namespace EPL_DBMS.Forms
             {
                 RefereeRepository.Delete(id);
 
-                // FIX: Added success message + icon
                 MessageBox.Show("Referee deleted.", "Deleted",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadReferees();
@@ -194,21 +178,18 @@ namespace EPL_DBMS.Forms
             if (e.RowIndex < 0) return;
 
             var row = dataGridViewReferees.CurrentRow;
-            txtid.Text          = row.Cells["RefereeId"].Value.ToString();
-            txtname.Text        = row.Cells["RefereeName"].Value.ToString();
+            txtid.Text = row.Cells["RefereeId"].Value.ToString();
+            txtname.Text = row.Cells["RefereeName"].Value.ToString();
             txtnationality.Text = row.Cells["Nationality"].Value.ToString();
 
-            txtid.ForeColor          = System.Drawing.Color.Black;
-            txtname.ForeColor        = System.Drawing.Color.Black;
+            txtid.ForeColor = System.Drawing.Color.Black;
+            txtname.ForeColor = System.Drawing.Color.Black;
             txtnationality.ForeColor = System.Drawing.Color.Black;
         }
 
         private void btnBack_Click(object sender, EventArgs e) => this.Close();
 
-        // FIX: Removed duplicate LoadReferees() call — constructor already calls it
         private void RefereesForm_Load(object sender, EventArgs e) { }
-
-        // FIX: Removed dead empty handler txtid_TextChanged_1 — was a Designer artifact
 
         private void ClearFields()
         {

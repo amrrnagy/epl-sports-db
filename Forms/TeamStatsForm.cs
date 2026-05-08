@@ -8,7 +8,7 @@ namespace EPL_DBMS.Forms
     {
         private readonly int? _teamId;
 
-        // 1. GLOBAL CONSTRUCTOR (Called from Main Form)
+        // Global dashboard constructor
         public TeamStatsForm()
         {
             InitializeComponent();
@@ -17,7 +17,7 @@ namespace EPL_DBMS.Forms
             this.Load += Form_Load;
         }
 
-        // 2. SPECIFIC CONSTRUCTOR (Called from Teams Form)
+        // Specific team history constructor
         public TeamStatsForm(int teamId, string teamName)
         {
             InitializeComponent();
@@ -34,24 +34,20 @@ namespace EPL_DBMS.Forms
 
                 if (_teamId.HasValue)
                 {
-                    // SPECIFIC TEAM (Shows the individual match logs)
                     dgv.DataSource = TeamStatRepository.GetStatsByTeamId(_teamId.Value);
 
-                    // 1. Hide unwanted raw IDs
                     if (dgv.Columns["TeamStatId"] != null) dgv.Columns["TeamStatId"].Visible = false;
                     if (dgv.Columns["TeamId"] != null) dgv.Columns["TeamId"].Visible = false;
                     if (dgv.Columns["MatchId"] != null) dgv.Columns["MatchId"].Visible = false;
-                    if (dgv.Columns["TeamName"] != null) dgv.Columns["TeamName"].Visible = false; // Hidden because it's in the Form Title!
+                    if (dgv.Columns["TeamName"] != null) dgv.Columns["TeamName"].Visible = false;
 
-                    // 2. Ensure MatchDisplay is visible and formatted nicely
                     if (dgv.Columns["MatchDisplay"] != null)
                     {
-                        dgv.Columns["MatchDisplay"].Visible = true; // Make sure it isn't hidden!
+                        dgv.Columns["MatchDisplay"].Visible = true;
                         dgv.Columns["MatchDisplay"].HeaderText = "Match Date & Opponent";
-                        dgv.Columns["MatchDisplay"].DisplayIndex = 0;    // Put it on the far left
+                        dgv.Columns["MatchDisplay"].DisplayIndex = 0;
                     }
 
-                    // 3. Format the remaining statistical columns
                     dgv.Columns["PossessionPercentage"].HeaderText = "Possession %";
                     dgv.Columns["ShotsOnTarget"].HeaderText = "Shots on Target";
                     dgv.Columns["Corners"].HeaderText = "Corners";
@@ -59,7 +55,6 @@ namespace EPL_DBMS.Forms
                 }
                 else
                 {
-                    // GLOBAL DASHBOARD (Shows the Statistical Standings)
                     dgv.DataSource = TeamStatRepository.GetLeagueStatisticalStandings();
 
                     dgv.Columns["TeamName"].HeaderText = "Team";

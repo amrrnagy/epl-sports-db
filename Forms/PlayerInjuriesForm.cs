@@ -8,7 +8,7 @@ namespace EPL_DBMS.Forms
     {
         private readonly int? _playerId;
 
-        // 1. GLOBAL CONSTRUCTOR (Called from Main Form)
+        // Global dashboard constructor
         public PlayerInjuriesForm()
         {
             InitializeComponent();
@@ -17,7 +17,7 @@ namespace EPL_DBMS.Forms
             this.Load += Form_Load;
         }
 
-        // 2. SPECIFIC CONSTRUCTOR (Called from Players Form)
+        // Specific player constructor
         public PlayerInjuriesForm(int playerId, string playerName)
         {
             InitializeComponent();
@@ -32,14 +32,12 @@ namespace EPL_DBMS.Forms
             {
                 var dgv = dataGridViewPlayerInjuries;
 
-                // ── PURE ADO.NET ROUTING ─────────────────────────────────────
                 if (_playerId.HasValue)
                 {
-                    // SPECIFIC PLAYER (Shows the raw individual injury log)
                     dgv.DataSource = PlayerInjuryRepository.GetViewByPlayerId(_playerId.Value);
 
                     dgv.Columns["PlayerId"].Visible = false;
-                    dgv.Columns["PlayerName"].Visible = false; // Redundant with window title
+                    dgv.Columns["PlayerName"].Visible = false;
 
                     dgv.Columns["InjuryDate"].HeaderText = "Injury Date";
                     dgv.Columns["InjuryType"].HeaderText = "Injury Type";
@@ -47,7 +45,6 @@ namespace EPL_DBMS.Forms
                 }
                 else
                 {
-                    // GLOBAL DASHBOARD (Uses the new Statistical Aggregation!)
                     dgv.DataSource = PlayerInjuryRepository.GetLeagueInjuryStatistics();
 
                     dgv.Columns["PlayerName"].HeaderText = "Player";

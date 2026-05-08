@@ -1,11 +1,3 @@
-// FIX: btnTeamStats_Click was opening PlayerStatsForm — now opens TeamStatsForm.
-// FIX: Duplicate block in txtid_TextChanged removed.
-// FIX: Success MessageBoxes added to Add/Update/Delete with correct icons.
-// FIX: Validation added before int.Parse calls in btnAdd_Click.
-// NEW: Calls UIHelper for styling and SetPlaceholder.
-// FIX: Wrong "player" text in btnTeamStats_Click message corrected.
-// FIX: 'stadiumid' TextBox completely replaced with cmbStadium ComboBox.
-
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -17,22 +9,18 @@ namespace EPL_DBMS.Forms
 {
     public partial class TeamsForm : Form
     {
-        private List<Stadium> _stadiums;   // NEW
+        private List<Stadium> _stadiums;
 
         public TeamsForm()
         {
             InitializeComponent();
 
-            // NEW: Modern styling
             ApplyModernStyling();
 
             txtid.TextChanged += txtid_TextChanged;
             LoadTeamsGrid();
-
-            // ADJUSTMENT: Call the stadium loader in the constructor
             LoadStadiumComboBox();
 
-            // FIX: Now calls UIHelper — no duplicate Placeholder method needed
             UIHelper.SetPlaceholder(txtname, "Club Name");
             UIHelper.SetPlaceholder(txtfounded, "Year Founded");
             UIHelper.SetPlaceholder(txtkitcolor, "Kit Color");
@@ -102,8 +90,6 @@ namespace EPL_DBMS.Forms
                 txtname.Text = team.TeamName;
                 txtfounded.Text = team.YearFounded.ToString();
                 txtkitcolor.Text = team.HomeKitColor;
-
-                // ADJUSTMENT: Set ComboBox value instead of TextBox text
                 cmbStadium.SelectedValue = team.StadiumId;
 
                 txtname.ForeColor = System.Drawing.Color.Black;
@@ -113,7 +99,7 @@ namespace EPL_DBMS.Forms
             else
             {
                 txtname.Clear(); txtfounded.Clear(); txtkitcolor.Clear();
-                cmbStadium.SelectedIndex = -1; // Reset ComboBox
+                cmbStadium.SelectedIndex = -1;
 
                 MessageBox.Show("No team found with ID: " + id, "Not Found",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -130,8 +116,6 @@ namespace EPL_DBMS.Forms
             txtname.Text = row.Cells["TeamName"].Value.ToString();
             txtfounded.Text = row.Cells["YearFounded"].Value.ToString();
             txtkitcolor.Text = row.Cells["HomeKitColor"].Value.ToString();
-
-            // ADJUSTMENT: Set ComboBox value instead of TextBox text
             cmbStadium.SelectedValue = row.Cells["StadiumId"].Value;
 
             txtid.ForeColor = System.Drawing.Color.Black;
@@ -160,7 +144,6 @@ namespace EPL_DBMS.Forms
                 return;
             }
 
-            // ADJUSTMENT: Removed stadiumId TryParse, added ComboBox validation
             if (!int.TryParse(txtfounded.Text, out int founded))
             {
                 MessageBox.Show("Year Founded must be a valid number.",
@@ -182,8 +165,6 @@ namespace EPL_DBMS.Forms
                     TeamName = txtname.Text.Trim(),
                     YearFounded = founded,
                     HomeKitColor = txtkitcolor.Text.Trim(),
-
-                    // ADJUSTMENT: Read value directly from ComboBox
                     StadiumId = (int)cmbStadium.SelectedValue
                 };
                 TeamRepository.Add(t);
@@ -204,7 +185,6 @@ namespace EPL_DBMS.Forms
         {
             if (dataGridViewTeams.CurrentRow == null) return;
 
-            // ADJUSTMENT: Removed stadiumId TryParse, added ComboBox validation
             if (!int.TryParse(txtfounded.Text, out int founded))
             {
                 MessageBox.Show("Year Founded must be a valid number.",
@@ -227,8 +207,6 @@ namespace EPL_DBMS.Forms
                     TeamName = txtname.Text.Trim(),
                     YearFounded = founded,
                     HomeKitColor = txtkitcolor.Text.Trim(),
-
-                    // ADJUSTMENT: Read value directly from ComboBox
                     StadiumId = (int)cmbStadium.SelectedValue
                 };
                 TeamRepository.Update(t);
@@ -274,8 +252,6 @@ namespace EPL_DBMS.Forms
         private void ClearFields()
         {
             txtname.Clear(); txtkitcolor.Clear(); txtfounded.Clear(); txtid.Clear();
-
-            // ADJUSTMENT: Reset ComboBox instead of clearing TextBox
             cmbStadium.SelectedIndex = -1;
         }
 
