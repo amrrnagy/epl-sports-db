@@ -9,23 +9,6 @@ namespace EPL_DBMS.DataAccess
 {
     public static class PlayerRepository
     {
-        public static List<Player> GetAllPlayers()
-        {
-            var list = new List<Player>();
-            using (var con = DatabaseHelper.GetConnection())
-            {
-                con.Open();
-                using (var cmd = new SqlCommand("sp_Player_GetAll", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    using (var reader = cmd.ExecuteReader())
-                        while (reader.Read())
-                            list.Add(Map(reader));
-                }
-            }
-            return list;
-        }
-
         public static List<PlayerViewModel> GetAllPlayersForGrid()
         {
             var list = new List<PlayerViewModel>();

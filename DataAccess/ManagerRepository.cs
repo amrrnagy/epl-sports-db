@@ -10,23 +10,6 @@ namespace EPL_DBMS.DataAccess
 {
     public static class ManagerRepository
     {
-        public static List<Manager> GetAllManagers()
-        {
-            var list = new List<Manager>();
-            using (var con = DatabaseHelper.GetConnection())
-            {
-                con.Open();
-                using (var cmd = new SqlCommand("sp_Manager_GetAll", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    using (var reader = cmd.ExecuteReader())
-                        while (reader.Read())
-                            list.Add(Map(reader));
-                }
-            }
-            return list;
-        }
-
         public static Manager GetById(int id)
         {
             using (var con = DatabaseHelper.GetConnection())

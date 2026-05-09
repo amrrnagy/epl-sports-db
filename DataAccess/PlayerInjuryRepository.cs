@@ -10,23 +10,6 @@ namespace EPL_DBMS.DataAccess
 {
     public static class PlayerInjuryRepository
     {
-        public static List<PlayerInjury> GetAllInjuries()
-        {
-            var list = new List<PlayerInjury>();
-            using (var con = DatabaseHelper.GetConnection())
-            {
-                con.Open();
-                using (var cmd = new SqlCommand("sp_PlayerInjury_GetAll", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    using (var reader = cmd.ExecuteReader())
-                        while (reader.Read())
-                            list.Add(Map(reader));
-                }
-            }
-            return list;
-        }
-
         public static List<PlayerInjury> GetByPlayerId(int playerId)
         {
             var list = new List<PlayerInjury>();

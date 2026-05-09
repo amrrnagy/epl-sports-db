@@ -159,6 +159,9 @@
     <EmbeddedResource Include="Forms\ManagersForm.resx">
       <DependentUpon>ManagersForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MatchesForm.resx">
+      <DependentUpon>MatchesForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\PlayersForm.resx">
       <DependentUpon>PlayersForm.cs</DependentUpon>
     </EmbeddedResource>

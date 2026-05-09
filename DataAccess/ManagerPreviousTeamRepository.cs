@@ -9,24 +9,6 @@ namespace EPL_DBMS.DataAccess
 {
     public static class ManagerPreviousTeamRepository
     {
-        public static List<ManagerPreviousTeam> GetByManagerId(int managerId)
-        {
-            var list = new List<ManagerPreviousTeam>();
-            using (var con = DatabaseHelper.GetConnection())
-            {
-                con.Open();
-                using (var cmd = new SqlCommand("sp_ManagerPreviousTeam_GetByManagerId", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@ManagerId", managerId);
-                    using (var reader = cmd.ExecuteReader())
-                        while (reader.Read())
-                            list.Add(Map(reader));
-                }
-            }
-            return list;
-        }
-
         public static List<ManagerPreviousTeamViewModel> GetViewByManagerId(int managerId)
         {
             var list = new List<ManagerPreviousTeamViewModel>();

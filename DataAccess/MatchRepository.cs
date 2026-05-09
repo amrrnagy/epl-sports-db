@@ -10,23 +10,6 @@ namespace EPL_DBMS.DataAccess
 {
     public static class MatchRepository
     {
-        public static List<Match> GetAllMatches()
-        {
-            var list = new List<Match>();
-            using (var con = DatabaseHelper.GetConnection())
-            {
-                con.Open();
-                using (var cmd = new SqlCommand("sp_Match_GetAll", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    using (var reader = cmd.ExecuteReader())
-                        while (reader.Read())
-                            list.Add(Map(reader));
-                }
-            }
-            return list;
-        }
-
         public static Match GetById(int id)
         {
             using (var con = DatabaseHelper.GetConnection())
