@@ -36,41 +36,5 @@ namespace EPL_DBMS.DataAccess
             }
             return list;
         }
-
-        public static void Add(ManagerPreviousTeam m)
-        {
-            using (var con = DatabaseHelper.GetConnection())
-            {
-                con.Open();
-                using (var cmd = new SqlCommand("sp_ManagerPreviousTeam_Insert", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@ManagerId",      m.ManagerId);
-                    cmd.Parameters.AddWithValue("@PreviousTeamId", m.PreviousTeamId);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        public static void Delete(int managerId, int previousTeamId)
-        {
-            using (var con = DatabaseHelper.GetConnection())
-            {
-                con.Open();
-                using (var cmd = new SqlCommand("sp_ManagerPreviousTeam_Delete", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@ManagerId",      managerId);
-                    cmd.Parameters.AddWithValue("@PreviousTeamId", previousTeamId);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private static ManagerPreviousTeam Map(SqlDataReader r) => new ManagerPreviousTeam
-        {
-            ManagerId      = (int)r["Manager_ID"],
-            PreviousTeamId = (int)r["Previous_Team_ID"]
-        };
     }
 }

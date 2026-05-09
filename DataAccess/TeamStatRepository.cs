@@ -10,7 +10,7 @@ namespace EPL_DBMS.DataAccess
 {
     public static class TeamStatRepository
     {
-        // ── NEW: Statistical Standings (Aggregated Data) ───────────────────────
+        // ── Statistical Standings (Aggregated Data) ───────────────────────
 
         public static List<TeamStandingViewModel> GetLeagueStatisticalStandings()
         {
