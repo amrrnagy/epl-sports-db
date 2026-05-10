@@ -2,8 +2,11 @@
 -- Creating Database and Tables -- 
 ----------------------------------
 
-create	database EPL;
+CREATE DATABASE EPL;
+GO
 USE EPL;
+GO
+
 -- 1. Stadiums Table
 CREATE TABLE Stadiums (
     Stadium_ID INT PRIMARY KEY IDENTITY(1,1),
@@ -26,7 +29,8 @@ CREATE TABLE Teams (
     Year_Founded INT,
     Home_Kit_Color VARCHAR(50),     
     Stadium_ID INT,
-    FOREIGN KEY (Stadium_ID) REFERENCES Stadiums(Stadium_ID)
+    -- SET NULL: If a stadium is deleted, the team still exists but is unassigned.
+    FOREIGN KEY (Stadium_ID) REFERENCES Stadiums(Stadium_ID) ON DELETE SET NULL
 );
 
 -- 4. Players Table
@@ -37,7 +41,8 @@ CREATE TABLE Players (
     Age INT,
     Nationality VARCHAR(50),
     Team_ID INT,
-    FOREIGN KEY (Team_ID) REFERENCES Teams(Team_ID)
+    -- SET NULL: If a team is deleted, players become free agents.
+    FOREIGN KEY (Team_ID) REFERENCES Teams(Team_ID) ON DELETE SET NULL
 );
 
 CREATE TABLE Player_Injuries (
@@ -46,6 +51,7 @@ CREATE TABLE Player_Injuries (
     Injury_Type VARCHAR(100),
     Days_Out INT,
     PRIMARY KEY (Player_ID, Injury_Date, Injury_Type),
+    -- CASCADE: If a player is deleted, delete their injury history.
     FOREIGN KEY (Player_ID) REFERENCES Players(Player_ID) ON DELETE CASCADE
 );
 
@@ -60,6 +66,7 @@ CREATE TABLE Matches (
     Home_Goals INT DEFAULT 0,
     Away_Goals INT DEFAULT 0,
     Attendance INT,
+    -- RESTRICTED: Left without cascades to prevent SQL Server "Multiple Cascade Path" fatal errors.
     FOREIGN KEY (Home_Team_ID) REFERENCES Teams(Team_ID),
     FOREIGN KEY (Away_Team_ID) REFERENCES Teams(Team_ID),
     FOREIGN KEY (Stadium_ID) REFERENCES Stadiums(Stadium_ID),
@@ -75,8 +82,9 @@ CREATE TABLE Team_Stats (
     Shots_On_Target INT,
     Corners INT,
     Fouls INT,
-    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID),
-    FOREIGN KEY (Team_ID) REFERENCES Teams(Team_ID)
+    -- CASCADE: If the match or team is deleted, these stats are meaningless.
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Team_ID) REFERENCES Teams(Team_ID) ON DELETE CASCADE
 );
 
 -- 7. Player_Stats Table (Bridge Table)
@@ -89,8 +97,9 @@ CREATE TABLE Player_Stats (
     Yellow_Cards INT DEFAULT 0,
     Red_Cards INT DEFAULT 0,
     Minutes_Played INT,
-    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID),
-    FOREIGN KEY (Player_ID) REFERENCES Players(Player_ID)
+    -- CASCADE: If the match or player is deleted, these stats are meaningless.
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Player_ID) REFERENCES Players(Player_ID) ON DELETE CASCADE
 );
 
 -- 8. Managers Table
@@ -101,7 +110,8 @@ CREATE TABLE Managers (
     Preferred_Formation VARCHAR(20), 
     Team_ID INT UNIQUE,
     Experience_Years INT,
-    FOREIGN KEY (Team_ID) REFERENCES Teams(Team_ID)
+    -- SET NULL: If a team is deleted, the manager is just unemployed, not deleted.
+    FOREIGN KEY (Team_ID) REFERENCES Teams(Team_ID) ON DELETE SET NULL
 );
 
 -- 9. Managers Previous Teams Table (Bridge Table)
@@ -109,7 +119,8 @@ CREATE TABLE Manager_Previous_Teams (
     Manager_ID INT,
     Previous_Team_ID INT,
     PRIMARY KEY (Manager_ID, Previous_Team_ID),
-    FOREIGN KEY (Manager_ID) REFERENCES Managers(Manager_ID),
+    -- CASCADE: If the manager is deleted, delete their historical timeline.
+    FOREIGN KEY (Manager_ID) REFERENCES Managers(Manager_ID) ON DELETE CASCADE,
     FOREIGN KEY (Previous_Team_ID) REFERENCES Teams(Team_ID)
 );
 
