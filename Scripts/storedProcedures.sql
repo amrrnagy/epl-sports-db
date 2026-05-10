@@ -1,27 +1,9 @@
--- ============================================================
--- EPL_DBMS — Stored Procedures
--- Generated from DataAccess layer migration
--- Run this script once against your database before deploying
--- the refactored C# repositories.
--- ============================================================
-
+-- EPL_DBMS Stored Procedures (44 active)
 
 -- ============================================================
 -- SECTION 1: MANAGER_PREVIOUS_TEAMS
 -- ============================================================
 
-CREATE PROCEDURE sp_ManagerPreviousTeam_GetByManagerId
-    @ManagerId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT *
-    FROM   Manager_Previous_Teams
-    WHERE  Manager_ID = @ManagerId;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_ManagerPreviousTeam_GetViewByManagerId
     @ManagerId INT
 AS
@@ -37,45 +19,11 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_ManagerPreviousTeam_Insert
-    @ManagerId     INT,
-    @PreviousTeamId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    INSERT INTO Manager_Previous_Teams (Manager_ID, Previous_Team_ID)
-    VALUES (@ManagerId, @PreviousTeamId);
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_ManagerPreviousTeam_Delete
-    @ManagerId      INT,
-    @PreviousTeamId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    DELETE FROM Manager_Previous_Teams
-    WHERE  Manager_ID      = @ManagerId
-      AND  Previous_Team_ID = @PreviousTeamId;
-END
-GO
-
 
 -- ============================================================
 -- SECTION 2: MANAGERS
 -- ============================================================
 
-CREATE PROCEDURE sp_Manager_GetAll
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT * FROM Managers;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Manager_GetById
     @ManagerId INT
 AS
@@ -87,7 +35,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Manager_Insert
     @ManagerName        NVARCHAR(100),
     @Nationality        NVARCHAR(100),
@@ -104,7 +51,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Manager_Update
     @ManagerId          INT,
     @ManagerName        NVARCHAR(100),
@@ -125,7 +71,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Manager_Delete
     @ManagerId INT
 AS
@@ -136,7 +81,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Manager_GetAllForGrid
 AS
 BEGIN
@@ -153,15 +97,6 @@ GO
 -- SECTION 3: MATCHES
 -- ============================================================
 
-CREATE PROCEDURE sp_Match_GetAll
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT * FROM Matches;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Match_GetById
     @MatchId INT
 AS
@@ -173,7 +108,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Match_Insert
     @MatchDate   DATETIME,
     @HomeTeamId  INT,
@@ -195,7 +129,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Match_Update
     @MatchId     INT,
     @MatchDate   DATETIME,
@@ -222,7 +155,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Match_Delete
     @MatchId INT
 AS
@@ -233,7 +165,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Match_Count
 AS
 BEGIN
@@ -242,8 +173,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
--- Returns all matches with human-readable FK names (for grid display).
 CREATE PROCEDURE sp_Match_GetAllForGrid
 AS
 BEGIN
@@ -261,8 +190,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
--- Returns a single match with human-readable FK names (for Search button).
 CREATE PROCEDURE sp_Match_GetViewById
     @MatchId INT
 AS
@@ -287,15 +214,6 @@ GO
 -- SECTION 4: PLAYER_INJURIES
 -- ============================================================
 
-CREATE PROCEDURE sp_PlayerInjury_GetAll
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT * FROM Player_Injuries;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_PlayerInjury_GetByPlayerId
     @PlayerId INT
 AS
@@ -307,65 +225,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_PlayerInjury_Insert
-    @PlayerId   INT,
-    @InjuryDate DATETIME,
-    @InjuryType NVARCHAR(100),
-    @DaysOut    INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    INSERT INTO Player_Injuries (Player_ID, Injury_Date, Injury_Type, Days_Out)
-    VALUES (@PlayerId, @InjuryDate, @InjuryType, @DaysOut);
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_PlayerInjury_Update
-    @PlayerId   INT,
-    @InjuryDate DATETIME,
-    @InjuryType NVARCHAR(100),
-    @DaysOut    INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE Player_Injuries
-    SET    Injury_Type = @InjuryType,
-           Days_Out    = @DaysOut
-    WHERE  Player_ID   = @PlayerId
-      AND  Injury_Date = @InjuryDate;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_PlayerInjury_Delete
-    @PlayerId   INT,
-    @InjuryDate DATETIME
-AS
-BEGIN
-    SET NOCOUNT ON;
-    DELETE FROM Player_Injuries
-    WHERE  Player_ID   = @PlayerId
-      AND  Injury_Date = @InjuryDate;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
--- Returns all injuries joined with Player_Name (for grid display).
-CREATE PROCEDURE sp_PlayerInjury_GetAllWithNames
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT pi.*,
-           p.Player_Name
-    FROM   Player_Injuries pi
-    INNER  JOIN Players p ON pi.Player_ID = p.Player_ID;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
--- Returns injuries for a specific player joined with Player_Name.
 CREATE PROCEDURE sp_PlayerInjury_GetViewByPlayerId
     @PlayerId INT
 AS
@@ -379,8 +238,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
--- Aggregated league-wide injury statistics, ranked by total days out.
 CREATE PROCEDURE sp_PlayerInjury_GetLeagueStatistics
 AS
 BEGIN
@@ -401,15 +258,6 @@ GO
 -- SECTION 5: PLAYERS
 -- ============================================================
 
-CREATE PROCEDURE sp_Player_GetAll
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT * FROM Players;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Player_GetAllForGrid
 AS
 BEGIN
@@ -421,7 +269,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Player_GetById
     @PlayerId INT
 AS
@@ -433,7 +280,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Player_GetDistinctPositions
 AS
 BEGIN
@@ -444,7 +290,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Player_Insert
     @PlayerName  NVARCHAR(100),
     @Position    NVARCHAR(50),
@@ -459,7 +304,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Player_Update
     @PlayerId    INT,
     @PlayerName  NVARCHAR(100),
@@ -480,7 +324,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Player_Delete
     @PlayerId INT
 AS
@@ -491,7 +334,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Player_Count
 AS
 BEGIN
@@ -505,104 +347,6 @@ GO
 -- SECTION 6: PLAYER_STATS
 -- ============================================================
 
-CREATE PROCEDURE sp_PlayerStat_GetAll
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT * FROM Player_Stats;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_PlayerStat_GetById
-    @PlayerStatId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT *
-    FROM   Player_Stats
-    WHERE  Player_Stat_ID = @PlayerStatId;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_PlayerStat_Insert
-    @MatchId       INT,
-    @PlayerId      INT,
-    @GoalsScored   INT,
-    @Assists       INT,
-    @YellowCards   INT,
-    @RedCards      INT,
-    @MinutesPlayed INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    INSERT INTO Player_Stats
-        (Match_ID, Player_ID, Goals_Scored, Assists,
-         Yellow_Cards, Red_Cards, Minutes_Played)
-    VALUES
-        (@MatchId, @PlayerId, @GoalsScored, @Assists,
-         @YellowCards, @RedCards, @MinutesPlayed);
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_PlayerStat_Update
-    @PlayerStatId  INT,
-    @MatchId       INT,
-    @PlayerId      INT,
-    @GoalsScored   INT,
-    @Assists       INT,
-    @YellowCards   INT,
-    @RedCards      INT,
-    @MinutesPlayed INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE Player_Stats
-    SET    Match_ID       = @MatchId,
-           Player_ID      = @PlayerId,
-           Goals_Scored   = @GoalsScored,
-           Assists        = @Assists,
-           Yellow_Cards   = @YellowCards,
-           Red_Cards      = @RedCards,
-           Minutes_Played = @MinutesPlayed
-    WHERE  Player_Stat_ID = @PlayerStatId;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_PlayerStat_Delete
-    @PlayerStatId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    DELETE FROM Player_Stats
-    WHERE  Player_Stat_ID = @PlayerStatId;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
--- Returns all player stats with names and match context (for grid).
-CREATE PROCEDURE sp_PlayerStat_GetAllForGrid
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT ps.*,
-           p.Player_Name,
-           m.Match_Date,
-           ht.Team_Name AS HomeTeam,
-           at.Team_Name AS AwayTeam
-    FROM   Player_Stats ps
-    INNER  JOIN Players p  ON ps.Player_ID    = p.Player_ID
-    INNER  JOIN Matches m  ON ps.Match_ID     = m.Match_ID
-    INNER  JOIN Teams   ht ON m.Home_Team_ID  = ht.Team_ID
-    INNER  JOIN Teams   at ON m.Away_Team_ID  = at.Team_ID;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
--- Returns stats for a specific player with names and match context.
 CREATE PROCEDURE sp_PlayerStat_GetByPlayerId
     @PlayerId INT
 AS
@@ -622,8 +366,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
--- Aggregated season totals per player, ranked by Golden Boot rules.
 CREATE PROCEDURE sp_PlayerStat_GetLeagueTopPerformers
 AS
 BEGIN
@@ -654,7 +396,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Referee_GetById
     @RefereeId INT
 AS
@@ -666,7 +407,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Referee_Insert
     @RefereeName NVARCHAR(100),
     @Nationality NVARCHAR(100)
@@ -678,7 +418,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Referee_Update
     @RefereeId   INT,
     @RefereeName NVARCHAR(100),
@@ -693,7 +432,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Referee_Delete
     @RefereeId INT
 AS
@@ -717,7 +455,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Stadium_GetById
     @StadiumId INT
 AS
@@ -729,7 +466,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Stadium_Insert
     @StadiumName NVARCHAR(100),
     @City        NVARCHAR(100),
@@ -742,7 +478,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Stadium_Update
     @StadiumId   INT,
     @StadiumName NVARCHAR(100),
@@ -759,7 +494,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Stadium_Delete
     @StadiumId INT
 AS
@@ -783,7 +517,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Team_GetById
     @TeamId INT
 AS
@@ -795,7 +528,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Team_Insert
     @TeamName     NVARCHAR(100),
     @YearFounded  INT,
@@ -809,7 +541,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Team_Update
     @TeamId       INT,
     @TeamName     NVARCHAR(100),
@@ -820,15 +551,14 @@ AS
 BEGIN
     SET NOCOUNT ON;
     UPDATE Teams
-    SET    Team_Name     = @TeamName,
-           Year_Founded  = @YearFounded,
+    SET    Team_Name      = @TeamName,
+           Year_Founded   = @YearFounded,
            Home_Kit_Color = @HomeKitColor,
-           Stadium_ID    = @StadiumId
+           Stadium_ID     = @StadiumId
     WHERE  Team_ID = @TeamId;
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Team_Delete
     @TeamId INT
 AS
@@ -839,7 +569,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
 CREATE PROCEDURE sp_Team_Count
 AS
 BEGIN
@@ -848,8 +577,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
--- Returns all teams with Stadium_Name resolved via INNER JOIN.
 CREATE PROCEDURE sp_Team_GetAllForGrid
 AS
 BEGIN
@@ -866,28 +593,6 @@ GO
 -- SECTION 10: TEAM_STATS
 -- ============================================================
 
-CREATE PROCEDURE sp_TeamStat_GetAll
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT * FROM Team_Stats;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_TeamStat_GetById
-    @TeamStatId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT *
-    FROM   Team_Stats
-    WHERE  Team_Stat_ID = @TeamStatId;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
--- Aggregated league-wide standings, ranked by possession then shots.
 CREATE PROCEDURE sp_TeamStat_GetLeagueStandings
 AS
 BEGIN
@@ -905,8 +610,6 @@ BEGIN
 END
 GO
 
--- ─────────────────────────────────────────────────────────────
--- Returns team stats for a specific team with readable names and match context.
 CREATE PROCEDURE sp_TeamStat_GetByTeamId
     @TeamId INT
 AS
@@ -925,59 +628,3 @@ BEGIN
     WHERE  ts.Team_ID = @TeamId;
 END
 GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_TeamStat_Insert
-    @MatchId              INT,
-    @TeamId               INT,
-    @PossessionPercentage DECIMAL(5,2),
-    @ShotsOnTarget        INT,
-    @Corners              INT,
-    @Fouls                INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    INSERT INTO Team_Stats
-        (Match_ID, Team_ID, Possession_Percentage, Shots_On_Target, Corners, Fouls)
-    VALUES
-        (@MatchId, @TeamId, @PossessionPercentage, @ShotsOnTarget, @Corners, @Fouls);
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_TeamStat_Update
-    @TeamStatId           INT,
-    @MatchId              INT,
-    @TeamId               INT,
-    @PossessionPercentage DECIMAL(5,2),
-    @ShotsOnTarget        INT,
-    @Corners              INT,
-    @Fouls                INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE Team_Stats
-    SET    Match_ID              = @MatchId,
-           Team_ID               = @TeamId,
-           Possession_Percentage = @PossessionPercentage,
-           Shots_On_Target       = @ShotsOnTarget,
-           Corners               = @Corners,
-           Fouls                 = @Fouls
-    WHERE  Team_Stat_ID = @TeamStatId;
-END
-GO
-
--- ─────────────────────────────────────────────────────────────
-CREATE PROCEDURE sp_TeamStat_Delete
-    @TeamStatId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    DELETE FROM Team_Stats
-    WHERE  Team_Stat_ID = @TeamStatId;
-END
-GO
-
--- ============================================================
--- END OF SCRIPT  (38 stored procedures total)
--- ============================================================
